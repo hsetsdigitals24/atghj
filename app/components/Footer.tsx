@@ -35,7 +35,7 @@ export default function Footer() {
                   <Image src="https://cdn.ncbi.nlm.nih.gov/pubmed/5a5c2d00-1594-4b19-8388-5ef557775816/core/images/pubmed-logo-white.svg" alt="PubMed" width={24} height={24} />
                 </Link>
                 <Link href="https://www.webofscience.com" target="_blank" rel="noopener noreferrer">
-                  <Image src="/logo/wos.png" alt="Web of Science" width={24} height={24} />
+                  {/* <Image src="/logo/wos.png" alt="Web of Science" width={24} height={24} /> */}
                 </Link>
               </div>
             </div>

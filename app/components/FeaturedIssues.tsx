@@ -33,12 +33,13 @@ export default function FeaturedIssues({ issues }: FeaturedIssuesProps) {
               className="group block"
             >
               <div className="relative aspect-[3/4] rounded-lg overflow-hidden shadow-md transition-transform duration-300 group-hover:scale-105">
-                <Image
-                  src={issue.coverImage || ''}
+              {issue.coverImage && 
+               <Image
+                  src={issue.coverImage}
                   alt={`Volume ${issue.volume}, Issue ${issue.issue}`}
                   fill
                   className="object-cover"
-                />
+                />}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
                 
                 <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
