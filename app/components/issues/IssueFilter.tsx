@@ -3,6 +3,7 @@ interface IssueFilterProps {
   years: number[];
   onYearChange: (year: number) => void;
   onSort: (sortBy: 'newest' | 'oldest') => void;
+  sortOrder: 'newest' | 'oldest';
 }
 
 export default function IssueFilter({
@@ -10,6 +11,7 @@ export default function IssueFilter({
   years,
   onYearChange,
   onSort,
+  sortOrder,
 }: IssueFilterProps) {
   return (
     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 p-4 bg-white rounded-lg shadow-sm mb-8">
@@ -43,6 +45,7 @@ export default function IssueFilter({
       <div className="flex items-center gap-2">
         <span className="text-gray-700 font-medium">Sort by:</span>
         <select
+          value={sortOrder}
           onChange={(e) => onSort(e.target.value as 'newest' | 'oldest')}
           className="px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
         >

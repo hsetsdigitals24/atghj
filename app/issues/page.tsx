@@ -88,6 +88,7 @@ export default function IssuesPage() {
           years={years}
           onYearChange={setSelectedYear}
           onSort={setSortOrder}
+          sortOrder={sortOrder}
         />
 
         {/* Issues Grid */}

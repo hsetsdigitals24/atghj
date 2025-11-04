@@ -1,6 +1,9 @@
 import IssueHeader from '@/app/components/issues/IssueHeader';
 import ArticleList from '@/app/components/issues/ArticleList';
 
+import { getIssueByNumber } from '@/app/utils/journal';
+import { notFound } from 'next/navigation';
+
 interface Props {
   params: {
     volume: string;
@@ -8,59 +11,50 @@ interface Props {
   };
 }
 
-export default function IssueView({ params }: Props) {
-  // Sample data - replace with actual API data
-  const issueData = {
-    volume: parseInt(params.volume),
-    issue: parseInt(params.issue),
-    date: '2025-10-01',
-    coverImage: '/images/issues/2025-q4.jpg',
-    articleCount: 12,
-    description: 'This issue features groundbreaking research in translational medicine and global health, with a special focus on infectious diseases and public health interventions in Africa.',
-    editors: [
-      { name: 'Dr. Sarah Johnson', role: 'Issue Editor' },
-      { name: 'Prof. Michael Okonjo', role: 'Associate Editor' },
-      { name: 'Dr. Fatima Ahmed', role: 'Guest Editor' },
-      { name: 'Dr. Robert Chen', role: 'Statistical Editor' }
-    ],
-    downloadUrl: `/issues/${params.volume}/${params.issue}/download`
+export default async function IssueView({ params }: Props) {
+  const volumeNumber = parseInt(params.volume);
+  const issueNumber = parseInt(params.issue);
+
+  const issueData = await getIssueByNumber(volumeNumber, issueNumber);
+  
+  if (!issueData) {
+    notFound();
+  }
+
+  // Transform the issue data to match our component props
+  const transformedIssueData = {
+    volume: volumeNumber,
+    issue: issueNumber,
+    date: issueData.date,
+    coverImage: issueData.coverImage || '/images/default-cover.jpg',
+    articleCount: issueData.articles.length,
+    description: issueData.description || `Issue ${issueNumber} of Volume ${volumeNumber}`,
+    editors: [], // We don't have editors in the API data yet
+    downloadUrl: `/issues/${params.volume}/${params.issue}/download` // This might need to be updated based on actual PDF URL
   };
 
-  const articles = [
-    {
-      title: "Novel Approaches to Malaria Prevention in Rural Communities",
-      authors: [
-        { name: "John Doe", orcid: "0000-0002-1825-0097" },
-        { name: "Jane Smith", orcid: "0000-0002-1825-0098" }
-      ],
-      abstract: "This study explores innovative strategies for malaria prevention in rural African communities, focusing on sustainable and cost-effective solutions that can be implemented at scale.",
-      doi: "10.1234/atghj.2025.001",
-      manuscriptType: "Original Research",
-      pages: "1-15",
-      citations: 12,
-      downloads: 345
-    },
-    {
-      title: "Impact of Climate Change on Vector-Borne Diseases in Africa",
-      authors: [
-        { name: "Alice Johnson", orcid: "0000-0002-1825-0099" }
-      ],
-      abstract: "A comprehensive review of the effects of climate change on the distribution and prevalence of vector-borne diseases across African regions, with implications for public health planning.",
-      doi: "10.1234/atghj.2025.002",
-      manuscriptType: "Review Article",
-      pages: "16-32",
-      citations: 8,
-      downloads: 287
-    },
-    // Add more sample articles as needed
-  ];
+  // Transform articles from the API format to the component format
+  const articles = issueData.articles.map(article => ({
+    title: article.title,
+    authors: article.authors.map(author => ({
+      name: author.name,
+      orcid: author.orcid
+    })),
+    abstract: article.abstract,
+    doi: article.doi,
+    manuscriptType: article.manuscriptType || 'Article',
+    pages: article.pageRange,
+    citations: 0, // We don't have this data from the API yet
+    downloads: 0, // We don't have this data from the API yet
+    pdfUrl: article.pdfUrl
+  }));
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Issue Header */}
         <div className="mb-8">
-          <IssueHeader {...issueData} />
+          <IssueHeader {...transformedIssueData} />
         </div>
 
         {/* Articles Section */}
@@ -90,9 +84,9 @@ export default function IssueView({ params }: Props) {
           <h2 className="text-lg font-semibold text-gray-900 mb-4">How to Cite this Issue</h2>
           <div className="prose prose-indigo max-w-none">
             <p className="text-gray-600">
-              African Translational & Global Health Journal (2025) Volume {params.volume}, 
-              Issue {params.issue}. ATGHJ Publishing Group. 
-              https://doi.org/10.1234/atghj.{params.volume}.{params.issue}
+              African Translational & Global Health Journal ({new Date(issueData.date).getFullYear()}) 
+              Volume {params.volume}, Issue {params.issue}. 
+              {issueData.description && `: ${issueData.description}`}
             </p>
           </div>
         </div>
