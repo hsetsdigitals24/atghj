@@ -6,7 +6,7 @@ interface Issue {
   volume: number;
   issue: number;
   date: string;
-  coverImageUrl: string;
+  coverImage: string;
   articleCount: number;
 }
 
@@ -33,9 +33,9 @@ export default function FeaturedIssues({ issues }: FeaturedIssuesProps) {
               className="group block"
             >
               <div className="relative aspect-[3/4] rounded-lg overflow-hidden shadow-md transition-transform duration-300 group-hover:scale-105">
-              {issue.coverImageUrl && 
+              {issue.coverImage && 
                <Image
-                  src={issue.coverImageUrl || ""}
+                  src={issue.coverImage || ""}
                   alt={`Volume ${issue.volume}, Issue ${issue.issue}`}
                   fill
                   className="object-cover"
