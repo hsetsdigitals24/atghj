@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import { Issues } from '../api/issues/types';
 
 interface Issue {
   id: string;
@@ -15,6 +16,7 @@ interface FeaturedIssuesProps {
 }
 
 export default function FeaturedIssues({ issues }: FeaturedIssuesProps) {
+  // console.log({"issue": issues})
   return (
     <section className="py-16 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -29,7 +31,7 @@ export default function FeaturedIssues({ issues }: FeaturedIssuesProps) {
           {issues.map((issue) => (
             <Link
               key={issue.id}
-              href={`/issues/${issue.id}`}
+              href={`/issues/${issue.volume}`}
               className="group block"
             >
               <div className="relative aspect-[3/4] rounded-lg overflow-hidden shadow-md transition-transform duration-300 group-hover:scale-105">

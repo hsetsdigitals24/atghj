@@ -1,32 +1,25 @@
 import HeroSection from './components/HeroSection';
-import FeaturedIssues from './components/FeaturedIssues';
-import FeaturedArticles from './components/FeaturedArticles';
-import { getFeaturedArticles, getLatestIssue } from '@/app/utils/journal';
+// import FeaturedIssues from './components/FeaturedIssues';
+// import FeaturedArticles from './components/FeaturedArticles'; 
+import { fetchCurrentIssue } from './api/journal/fetch';
+import LatestIssue from './components/LatestIssue';
 
 export default async function Home() {
   try {
-    const articles = await getFeaturedArticles();
-    const latestIssue = await getLatestIssue();
-
-    if (!articles || !latestIssue) {
+    // const articles = await getFeaturedArticles();
+    const latestIssue = await fetchCurrentIssue();
+    console.log({"latestIssue": latestIssue});
+    if (!latestIssue) {
       throw new Error('Failed to fetch data');
     }
 
-    // Transform the latestIssue to match the FeaturedIssues component's expectations
-    const formattedIssue = {
-      id: `${latestIssue.volume}-${latestIssue.issue}`,
-      volume: latestIssue.volume,
-      issue: latestIssue.issue,
-      date: latestIssue.date,
-      coverImage: latestIssue.coverImage || '/images/default-cover.jpg', // Provide a default cover image
-      articleCount: latestIssue.articles.length
-    };
 
+    // console.log({"issue": latestIssue.coverImage.en});
     return (
       <div className="min-h-screen">
         <HeroSection />
-        <FeaturedIssues issues={[formattedIssue]} />
-        <FeaturedArticles articles={articles} />
+       <LatestIssue issue={latestIssue} />
+        {/* <FeaturedArticles articles={articles} /> */}
       </div>
     );
   } catch (error) {

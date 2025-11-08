@@ -6,31 +6,14 @@ export interface Author {
   isCorresponding?: boolean;
 }
 
-export interface Article {
-  id: string;
-  title: string;
-  authors: Author[];
-  abstract: string;
-  doi: string;
-  publicationDate: string;
-  manuscriptType: string;
-  keywords?: string[];
-  volume: number;
-  issue: number;
-  pageRange?: string;
-  imageUrl?: string;
-  pdfUrl?: string;
-  fundingInfo?: string;
-  conflictOfInterest?: string;
-  ethicalApproval?: string;
-}
-
 export interface Issue {
   id: string;
   volume: number;
   issue: number;
   date: string;
-  coverImage?: string;
+  coverImage?: {
+    en: string;
+  };
   articleCount: number;
   articles: Article[];
   description?: string;
@@ -71,12 +54,11 @@ export interface Announcement {
   expiryDate?: string;
 }
 
-export interface JournalData {
-  volumes: Volume[];
+export interface JournalData { 
   latestIssue: Issue | null;
   featuredArticles: Article[];
-  masthead: Masthead;
-  announcements: Announcement[];
+  // masthead: Masthead;
+  // announcements: Announcement[];
   stats: {
     totalVolumes: number;
     totalIssues: number;
@@ -86,4 +68,108 @@ export interface JournalData {
       end: number;
     };
   };
+}
+
+
+export interface OJSIssue {
+  id: number;
+  title: string;
+  description: string;
+  volume: number;
+  number: string;
+  year: number;
+  datePublished: string;
+  coverImageUrl: string | null;
+}
+
+export interface OJSResponse<T> {
+  items: T[];
+  itemsMax: number;
+}
+
+export interface CurrentIssueResponse {
+  items: OJSIssue[];
+  itemsMax: number;
+}
+export interface OJSSubmission {
+  id: number;
+  title: string;
+  abstract: string;
+  publications?: {
+    authors?: Array<{
+      fullName: string;
+      orcid: string | null;
+      affiliation: string;
+    }>;
+  };
+  doi: string;
+  datePublished: string;
+  issue?: {
+    id: number;
+    volume: number;
+    number: string;
+  };
+  sectionId?: number;
+}
+
+export interface OJSAnnouncement {
+  id: number;
+  title: string;
+  description: string;
+  datePosted: string;
+  dateExpire: string | null;
+}
+
+export interface OJSUser {
+  id: number;
+  fullName: string;
+  email: string;
+  userGroups?: Array<{
+    id: number;
+    name: string;
+    roleId: number;
+  }>;
+  affiliation: string;
+  country: string;
+  orcid: string | null;
+}
+
+export interface LocalizedString {
+  en: string;
+  [key: string]: string;
+}
+
+export interface Article {
+  id: number;
+  title: LocalizedString;
+  authorsString: string;
+  datePublished: string;
+  urlPublished: string;
+  status: number;
+  statusLabel: string;
+}
+
+export interface Section {
+  id: number;
+  title: LocalizedString;
+  abbrev: LocalizedString;
+  sequence: number;
+}
+
+export interface LatestIssueProps {
+  id: number;
+  volume: number;
+  number: string;
+  year: number;
+  title: LocalizedString;
+  description: LocalizedString;
+  datePublished: string;
+  coverImage: LocalizedString;
+  coverImageUrl: LocalizedString;
+  coverImageAltText: LocalizedString;
+  identification: string;
+  publishedUrl: string;
+  articles: Article[];
+  sections: Section[];
+  published?: boolean; 
 }

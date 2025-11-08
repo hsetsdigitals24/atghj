@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { fetchJournalData } from '@/app/api/journal/fetch';
+import { fetchCurrentIssue } from '@/app/api/journal/fetch';
 
 export async function GET(request: NextRequest) {
   try {
-    const data = await fetchJournalData();
+    const data = await fetchCurrentIssue();
+    console.log({"data": data });
     return NextResponse.json(data);
   } catch (error) {
     console.error('Error in journal data route:', error);
