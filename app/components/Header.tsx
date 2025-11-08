@@ -55,12 +55,12 @@ export default function Header() {
               Bridging Research, Innovation, and Health Equity in Africa!
             </p>
             <div className="flex items-center space-x-4">
-              <span>Volume 4, Issue 3 - October 2025</span>
+              <span>Volume 1, Issue 1 - October 2025</span>
               <button
-                onClick={() => setLanguage(isLanguage === 'en' ? 'fr' : 'en')}
+                onClick={() => setLanguage(isLanguage === 'en' ? 'en' : 'fr' )}
                 className="text-white hover:text-gray-200 transition-colors"
               >
-                {isLanguage === 'en' ? 'FR' : 'EN'}
+                {isLanguage === 'en' ? 'EN' : 'FR'}
               </button>
             </div>
           </div>
