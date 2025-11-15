@@ -1,157 +1,235 @@
+
 'use client';
-import { useState } from 'react';
-import ArchiveFilter from '@/app/components/archive/ArchiveFilter';
-import ArchiveGrid from '@/app/components/archive/ArchiveGrid';
+
+import { useEffect, useState } from 'react'; 
+import IssueListItem from '../components/issues/ListItem';
+import IssueCard from '../components/issues/IssueCard';
+
+export interface Issue {
+  id: number;
+  title: string | { [locale: string]: string };
+  description?: string | { [locale: string]: string };
+  volume?: number;
+  number?: string;
+  year?: number;
+  datePublished?: string;
+  coverImageUrl?: string | { [locale: string]: string };
+  urlPublished?: string;
+}
+
+interface GroupedIssues {
+  [year: string]: Issue[];
+}
 
 export default function ArchivePage() {
-  // Sample data - replace with actual API data
-  const archiveData = {
-    volumes: [
-      {
-        volume: 5,
-        year: 2025,
-        issues: [
-          {
-            volume: 5,
-            issue: 4,
-            date: '2025-10-01',
-            articleCount: 12,
-          },
-          {
-            volume: 5,
-            issue: 3,
-            date: '2025-07-01',
-            articleCount: 15,
-          },
-          {
-            volume: 5,
-            issue: 2,
-            date: '2025-04-01',
-            articleCount: 14,
-          },
-          {
-            volume: 5,
-            issue: 1,
-            date: '2025-01-01',
-            articleCount: 13,
-          },
-        ],
-        articles: [
-          {
-            title: "Novel Approaches to Malaria Prevention in Rural Communities",
-            authors: [
-              { name: "John Doe", orcid: "0000-0002-1825-0097" },
-              { name: "Jane Smith", orcid: "0000-0002-1825-0098" }
-            ],
-            abstract: "This study explores innovative strategies for malaria prevention...",
-            doi: "10.1234/atghj.2025.001",
-            publicationDate: "2025-10-01",
-            manuscriptType: "Original Research"
-          },
-          // Add more articles...
-        ],
-      },
-      // Add more volumes...
-    ],
+  const [issues, setIssues] = useState<Issue[]>([]);
+  const [groupedIssues, setGroupedIssues] = useState<GroupedIssues>({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedYear, setSelectedYear] = useState<string>('all');
+  const [selectedVolume, setSelectedVolume] = useState<string>('all');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+
+  useEffect(() => {
+    fetchArchive();
+  }, [selectedYear, selectedVolume]);
+
+  async function fetchArchive() {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams();
+      if (selectedYear !== 'all') {
+        params.append('year', selectedYear);
+      }
+      if (selectedVolume !== 'all') {
+        params.append('volume', selectedVolume);
+      }
+
+      const response = await fetch(`/api/archive?${params.toString()}`);
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch archive');
+      }
+
+      const data = await response.json();
+      const fetchedIssues = data.items || [];
+      setIssues(fetchedIssues);
+
+      // Group issues by year
+      const grouped = fetchedIssues.reduce((acc: GroupedIssues, issue: Issue) => {
+        const year = issue.year?.toString() || 
+                     new Date(issue.datePublished || '').getFullYear().toString() || 
+                     'Unknown';
+        if (!acc[year]) {
+          acc[year] = [];
+        }
+        acc[year].push(issue);
+        return acc;
+      }, {});
+
+      setGroupedIssues(grouped);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const getLocalizedValue = (value: string | { [locale: string]: string } | undefined) => {
+    if (!value) return '';
+    if (typeof value === 'string') return value;
+    return value['en'] || value['en_US'] || Object.values(value)[0] || '';
   };
 
-  const [selectedYear, setSelectedYear] = useState<number | null>(null);
-  const [selectedVolume, setSelectedVolume] = useState<number | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
+  const years = Object.keys(groupedIssues).sort((a, b) => Number(b) - Number(a));
+  const volumes = Array.from(
+    new Set(issues.map(i => i.volume).filter(Boolean))
+  ).sort((a, b) => Number(b) - Number(a));
 
-  // Get unique years and volumes
-  const years = Array.from(new Set(archiveData.volumes.map(v => v.year))).sort((a, b) => b - a);
-  const volumes = Array.from(new Set(archiveData.volumes.map(v => v.volume))).sort((a, b) => b - a);
-
-  // Filter volumes based on selected filters
-  const filteredVolumes = archiveData.volumes.filter(volume => {
-    const matchesYear = !selectedYear || volume.year === selectedYear;
-    const matchesVolume = !selectedVolume || volume.volume === selectedVolume;
-    const matchesSearch = !searchQuery || volume.articles.some(article =>
-      article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      article.authors.some(author =>
-        author.name.toLowerCase().includes(searchQuery.toLowerCase())
-      )
+  if (loading && issues.length === 0) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="animate-pulse space-y-8">
+          <div className="h-12 bg-gray-200 rounded w-1/3"></div>
+          <div className="space-y-4">
+            <div className="h-8 bg-gray-200 rounded w-1/4"></div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {[1, 2, 3].map(i => (
+                <div key={i} className="h-64 bg-gray-200 rounded"></div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
     );
+  }
 
-    return matchesYear && matchesVolume && matchesSearch;
-  });
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+          <h2 className="text-xl font-semibold text-red-800 mb-2">Error</h2>
+          <p className="text-red-600">{error}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Page Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Journal Archive
-          </h1>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Browse all published volumes, issues, and articles from the African Translational & Global Health Journal.
-          </p>
-        </div>
-
-        {/* Archive Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <div className="bg-white rounded-lg p-6 text-center">
-            <div className="text-3xl font-bold text-indigo-600 mb-2">
-              {archiveData.volumes.length}
-            </div>
-            <div className="text-sm text-gray-600">Volumes</div>
-          </div>
-          <div className="bg-white rounded-lg p-6 text-center">
-            <div className="text-3xl font-bold text-indigo-600 mb-2">
-              {archiveData.volumes.reduce((acc, vol) => acc + vol.issues.length, 0)}
-            </div>
-            <div className="text-sm text-gray-600">Issues</div>
-          </div>
-          <div className="bg-white rounded-lg p-6 text-center">
-            <div className="text-3xl font-bold text-indigo-600 mb-2">
-              {archiveData.volumes.reduce((acc, vol) => acc + vol.articles.length, 0)}
-            </div>
-            <div className="text-sm text-gray-600">Articles</div>
-          </div>
-          <div className="bg-white rounded-lg p-6 text-center">
-            <div className="text-3xl font-bold text-indigo-600 mb-2">
-              {years[years.length - 1]} - {years[0]}
-            </div>
-            <div className="text-sm text-gray-600">Year Range</div>
-          </div>
-        </div>
-
-        {/* Filters */}
-        <ArchiveFilter
-          years={years}
-          volumes={volumes}
-          onYearChange={setSelectedYear}
-          onVolumeChange={setSelectedVolume}
-          onSearch={setSearchQuery}
-        />
-
-        {/* Results */}
-        {filteredVolumes.length > 0 ? (
-          <ArchiveGrid volumes={filteredVolumes} />
-        ) : (
-          <div className="text-center py-12 bg-white rounded-lg">
-            <svg
-              className="mx-auto h-12 w-12 text-gray-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"
-              />
-            </svg>
-            <h3 className="mt-2 text-sm font-medium text-gray-900">No results found</h3>
-            <p className="mt-1 text-sm text-gray-500">
-              Try adjusting your search or filter criteria
-            </p>
-          </div>
-        )}
+    <div className="container mx-auto px-4 py-8">
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="text-4xl font-bold text-gray-900 mb-2">Journal Archive</h1>
+        <p className="text-gray-600">
+          Browse all published issues - {issues.length} issue{issues.length !== 1 ? 's' : ''} available
+        </p>
       </div>
+
+      {/* Filters and View Options */}
+      <div className="bg-white rounded-lg shadow-sm border p-6 mb-8">
+        <div className="flex flex-wrap gap-4 items-center justify-between">
+          <div className="flex flex-wrap gap-4">
+            {/* Year Filter */}
+            {years.length > 1 && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Year
+                </label>
+                <select
+                  value={selectedYear}
+                  onChange={(e) => setSelectedYear(e.target.value)}
+                  className="border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="all">All Years</option>
+                  {years.map(year => (
+                    <option key={year} value={year}>{year}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {/* Volume Filter */}
+            {volumes.length > 1 && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Volume
+                </label>
+                <select
+                  value={selectedVolume}
+                  onChange={(e) => setSelectedVolume(e.target.value)}
+                  className="border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="all">All Volumes</option>
+                  {volumes.map(vol => (
+                    <option key={vol} value={vol}>Volume {vol}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+          </div>
+
+          {/* View Mode Toggle */}
+          <div className="flex gap-2">
+            <button
+              onClick={() => setViewMode('grid')}
+              className={`p-2 rounded ${
+                viewMode === 'grid'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
+              title="Grid View"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+              </svg>
+            </button>
+            <button
+              onClick={() => setViewMode('list')}
+              className={`p-2 rounded ${
+                viewMode === 'list'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
+              title="List View"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Issues Display */}
+      {issues.length === 0 ? (
+        <div className="text-center py-12">
+          <p className="text-gray-600 text-lg">No issues found matching your filters.</p>
+        </div>
+      ) : (
+        <div className="space-y-12">
+          {years.map(year => (
+            <section key={year}>
+              <h2 className="text-2xl font-bold text-gray-900 mb-6 pb-2 border-b-2 border-blue-600">
+                {year}
+              </h2>
+
+              {viewMode === 'grid' ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {groupedIssues[year].map(issue => (
+                    <IssueCard key={issue.id} issue={issue} getLocalizedValue={getLocalizedValue} />
+                  ))}
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {groupedIssues[year].map(issue => (
+                    <IssueListItem key={issue.id} issue={issue} getLocalizedValue={getLocalizedValue} />
+                  ))}
+                </div>
+              )}
+            </section>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

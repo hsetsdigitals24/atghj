@@ -19,6 +19,33 @@ interface Participant {
   canLoginAs: boolean;
 }
 
+interface FileRevision {
+  documentType: string;
+  fileId: string;
+  mimetype: string;
+  path: string;
+  url: string;
+}
+
+interface SubmissionFile {
+  id: number;
+  name: { [locale: string]: string };
+  mimetype: string;
+  documentType: string;
+  genreName: { [locale: string]: string };
+  url: string;
+  revisions?: FileRevision[];
+}
+
+interface Galley {
+  id: number;
+  label: string;
+  locale: string;
+  file?: SubmissionFile;
+  urlPublished?: string;
+  isApproved?: boolean;
+}
+
 interface Publication {
   id: number;
   title: { [locale: string]: string };
@@ -34,6 +61,7 @@ interface Publication {
   urlPublished?: string;
   version?: number;
   locale?: string;
+  galleys?: Galley[];
 }
 
 interface Submission {
@@ -87,7 +115,7 @@ export default function ArticlePage() {
 
     fetchArticle();
     console.log({"articleId in ArticlePage component": article});
-  }, [articleId]);
+  }, [articleId, article]);
 
   const getLocalizedValue = (value: string | { [locale: string]: string } | undefined) => {
     if (!value) return '';
@@ -260,8 +288,8 @@ export default function ArticlePage() {
               <div className="bg-white rounded-lg border p-6 mb-8">
                 <h2 className="text-xl font-bold text-gray-900 mb-6">Submission Workflow</h2>
                 <div className="space-y-3">
-                  {article.stages.map((stage, idx) => (
-                    <div key={stage.id} className="flex items-center gap-4">
+                  {article.stages.map((stage, id) => (
+                    <div key={id} className="flex items-center gap-4">
                       <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-lg ${
                         stage.isActiveStage 
                           ? 'bg-accent text-white' 
@@ -293,6 +321,111 @@ export default function ArticlePage() {
                   className="text-blue-900 prose max-w-none text-sm"
                   dangerouslySetInnerHTML={{ __html: article.commentsForTheEditors }}
                 />
+              </div>
+            )}
+
+            {/* Galleys / Document Downloads */}
+            {publication.galleys && publication.galleys.length > 0 && (
+              <div className="mb-8">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">Available Versions</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {publication.galleys.map((galley) => {
+                    const fileName = galley.file?.name 
+                      ? (typeof galley.file.name === 'string' 
+                        ? galley.file.name 
+                        : galley.file.name['en'] || Object.values(galley.file.name)[0])
+                      : `${galley.label} File`;
+                    
+                    const fileUrl = galley.file?.url || galley.urlPublished;
+                    const genreName = galley.file?.genreName
+                      ? (typeof galley.file.genreName === 'string'
+                        ? galley.file.genreName
+                        : galley.file.genreName['en'] || Object.values(galley.file.genreName)[0])
+                      : 'Article';
+
+                    return (
+                      <div 
+                        key={galley.id} 
+                        className="bg-white border-2 border-gray-200 rounded-lg p-6 hover:border-accent hover:shadow-lg transition-all"
+                      >
+                        {/* File Type Icon */}
+                        <div className="flex items-start justify-between mb-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-12 h-12 rounded-lg bg-accent/10 flex items-center justify-center">
+                              {galley.file?.mimetype?.includes('pdf') && (
+                                <svg className="w-6 h-6 text-accent" fill="currentColor" viewBox="0 0 20 20">
+                                  <path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm0 2h12v10H4V5z" />
+                                </svg>
+                              )}
+                              {galley.file?.mimetype?.includes('word') && (
+                                <svg className="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                                  <path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4z" />
+                                </svg>
+                              )}
+                              {!galley.file?.mimetype?.includes('pdf') && !galley.file?.mimetype?.includes('word') && (
+                                <svg className="w-6 h-6 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
+                                  <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
+                                </svg>
+                              )}
+                            </div>
+                            <div>
+                              <p className="text-sm font-medium text-gray-600">{genreName}</p>
+                              <p className="text-xs text-gray-500">v{publication.version}</p>
+                            </div>
+                          </div>
+                          {galley.isApproved && (
+                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                              ✓ Approved
+                            </span>
+                          )}
+                        </div>
+
+                        {/* File Name */}
+                        <p className="text-sm font-semibold text-gray-900 mb-4 line-clamp-2">
+                          {fileName}
+                        </p>
+
+                        {/* File Info */}
+                        <div className="mb-4 flex items-center gap-4 text-xs text-gray-600">
+                          <span>{galley.file?.mimetype?.split('/')[1]?.toUpperCase() || 'FILE'}</span>
+                          {galley.file?.documentType && (
+                            <span className="capitalize">{galley.file.documentType}</span>
+                          )}
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div className="flex gap-2">
+                          {fileUrl && (
+                            <a
+                              href={`/article/download/${article.id.toString()}/${galley.id.toString()}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex-1 flex items-center justify-center gap-2 bg-accent text-white px-4 py-2 rounded-lg hover:bg-opacity-90 transition-colors font-medium text-sm"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                              </svg>
+                              Download
+                            </a>
+                          )}
+                          {galley.urlPublished && (
+                            <a
+                              href={`/article/view/${article.id.toString()}/${galley.id.toString()}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex-1 flex items-center justify-center gap-2 border border-accent text-accent px-4 py-2 rounded-lg hover:bg-accent/5 transition-colors font-medium text-sm"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                              </svg>
+                              View
+                            </a>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             )}
 
