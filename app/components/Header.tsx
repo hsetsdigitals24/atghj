@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import logo from '../../public/logo/Color@4x.png';
+import logo from '../../public/logo/logo.jpg';
 // import { sub } from 'date-fns';
 
 export default function Header() {
@@ -26,7 +26,7 @@ export default function Header() {
   const mainNav = [
     { name: 'Current Issue', href: '/' },
     { name: 'Archive', href: '/archive' },
-    { name: 'Dashboard', href: 'https://atghj.africa/index.php/atghj/dashboard/mySubmissions?currentViewId=active' },
+    { name: 'Dashboard', href: submission_url || "https://dashboard.atghj.africa/index.php/journal/submission" },
     { name: 'Author Guidelines', href: '/guidelines' },
   ];
 

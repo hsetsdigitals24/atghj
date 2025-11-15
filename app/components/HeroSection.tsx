@@ -22,7 +22,7 @@ export default function HeroSection() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link 
               href={process.env.SUBMISSION_URL || "https://dashboard.atghj.africa/index.php/journal/submission"}
-              className="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 rounded-md font-semibold transition-colors duration-200"
+              className="px-8 py-3 bg-primary hover:bg-indigo-700 rounded-md font-semibold transition-colors duration-200"
             >
               Submit Manuscript
             </Link>
