@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { issueId: string } }
+  { params }: { params: Promise<{ issueId: string }> }
 ) {
-  const { issueId } = params;
+  const { issueId } = await params;
   
   // Get your OJS configuration from environment variables
   const OJS_BASE_URL = process.env.NEXT_PUBLIC_OJS_API_URL; // e.g., https://example.com/index.php/journal
