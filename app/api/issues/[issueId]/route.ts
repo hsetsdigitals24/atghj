@@ -16,7 +16,12 @@ export async function GET(
       { status: 500 }
     );
   }
-
+if(issueId === undefined || issueId === null){
+  return NextResponse.json(
+    { error: 'Issue ID is required' },
+    { status: 400 }
+  );
+}
   try {
     // Construct the API URL with issueIds parameter and apiKey
     const apiUrl = new URL(`${OJS_BASE_URL}/submissions`);
