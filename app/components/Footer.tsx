@@ -151,17 +151,17 @@ export default function Footer() {
 
                 <ul className="flex flex-col flex-wrap gap-4 text-sm">
                 <li>
-                  <Link href="/privacy-policy" className="hover:text-white transition-colors">
+                  <Link href="/policy" className="hover:text-white transition-colors">
                     Privacy Policy
                   </Link>
                 </li>
                 <li>
-                  <Link href="/terms-of-use" className="hover:text-white transition-colors">
+                  <Link href="/policy/terms" className="hover:text-white transition-colors">
                     Terms of Use
                   </Link>
                 </li>
                 <li>
-                  <Link href="/cookie-policy" className="hover:text-white transition-colors">
+                  <Link href="/policy/cookie" className="hover:text-white transition-colors">
                     Cookie Policy
                   </Link>
                 </li>

@@ -203,7 +203,7 @@ export default function Header() {
                 whileTap={{ scale: 0.95 }}
               >
                 <Link
-                  href={submission_url|| "https://dashboard.atghj.africa/index.php/journal/submission"}
+                  href={submission_url|| "https://dashboard.atghj.africa/index.php/journal/submission"} 
                   className="inline-flex items-center px-6 py-2.5 border border-transparent 
                            text-sm font-semibold rounded-full text-white bg-accent
                            hover:bg-primary transition-colors duration-200 
