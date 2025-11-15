@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -43,7 +43,7 @@ interface IssueData {
   datePublished?: string;
 }
 
-export default function SubmissionsPage() {
+function SubmissionsContent() {
   const searchParams = useSearchParams();
   const issueId = searchParams.get('issueId') || '1';
 
@@ -59,8 +59,6 @@ export default function SubmissionsPage() {
     async function fetchData() {
       try {
         setLoading(true);
-
-        // Fetch articles and issue details from API route
         const response = await fetch(`/api/issues/submissions?issueId=${issueId}`);
         if (!response.ok) {
           throw new Error('Failed to fetch submissions');
@@ -83,12 +81,10 @@ export default function SubmissionsPage() {
     return value['en'] || value['en_US'] || Object.values(value)[0] || '';
   };
 
-  // Get unique sections from articles
   const sections = Array.from(
     new Set(articles.map(a => a.sectionTitle).filter(Boolean))
   ) as string[];
 
-  // Filter articles based on search and section
   const filteredArticles = articles.filter((article) => {
     const publication = article.publications.find(
       p => p.id === article.currentPublicationId
@@ -110,7 +106,6 @@ export default function SubmissionsPage() {
     return matchesSearch && matchesSection;
   });
 
-  // Sort articles
   const sortedArticles = [...filteredArticles].sort((a, b) => {
     const pubA = a.publications.find(p => p.id === a.currentPublicationId);
     const pubB = b.publications.find(p => p.id === b.currentPublicationId);
@@ -207,7 +202,6 @@ export default function SubmissionsPage() {
 
           {/* Filters and Search */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-            {/* Search */}
             <div className="md:col-span-1">
               <input
                 type="text"
@@ -218,7 +212,6 @@ export default function SubmissionsPage() {
               />
             </div>
 
-            {/* Section Filter */}
             {sections.length > 0 && (
               <div className="md:col-span-1">
                 <select
@@ -236,7 +229,6 @@ export default function SubmissionsPage() {
               </div>
             )}
 
-            {/* Sort Options */}
             <div className="md:col-span-1">
               <select
                 value={sortBy}
@@ -380,5 +372,24 @@ export default function SubmissionsPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function SubmissionsPage() {
+  return (
+    <Suspense fallback={
+      <div className="container mx-auto p-8">
+        <div className="animate-pulse">
+          <div className="h-8 bg-gray-200 rounded w-1/3 mb-4"></div>
+          <div className="space-y-4">
+            {[1, 2, 3].map(i => (
+              <div key={i} className="h-32 bg-gray-200 rounded"></div>
+            ))}
+          </div>
+        </div>
+      </div>
+    }>
+      <SubmissionsContent />
+    </Suspense>
   );
 }
