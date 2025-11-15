@@ -38,7 +38,7 @@ export default function IssueArticlesPage() {
   useEffect(() => {
     async function fetchArticles() {
       try {
-        const response = await fetch(`/api/issues/${issueId}/articles`);
+        const response = await fetch(`/api/issues/${issueId}`);
         
         console.log({"response in IssueArticlesPage": response});
         if (!response.ok) {
