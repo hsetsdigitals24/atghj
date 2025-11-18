@@ -117,7 +117,7 @@ export default function Header() {
                 <Image
                   src={logo}
                   alt="ATGHJ Logo"
-                  width={120}
+                  width={160}
                   height={50}
                   className="w-75 h-auto"
                   priority
@@ -137,7 +137,7 @@ export default function Header() {
                   >
                     <Link
                       href={item.href}
-                      className="text-gray-700 hover:text-primary-600 dark:text-gray-300 
+                      className="text-gray-700 hover:text-primary dark:text-gray-300 
                                dark:hover:text-white transition-colors duration-200 
                                text-sm font-medium"
                     >
@@ -151,7 +151,7 @@ export default function Header() {
                   <motion.button
                     whileHover={{ y: -2 }}
                     whileTap={{ y: 0 }}
-                    className="text-gray-700 hover:text-primary-600 dark:text-gray-300 
+                    className="text-gray-700 hover:text-primary dark:text-gray-300 
                              dark:hover:text-white transition-colors duration-200 
                              text-sm font-medium flex items-center"
                     onClick={() => setIsResourcesOpen(!isResourcesOpen)}
@@ -226,7 +226,7 @@ export default function Header() {
             <motion.button
               whileTap={{ scale: 0.95 }}
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="lg:hidden p-2 rounded-md text-gray-600 hover:text-gray-900 
+              className="lg:hidden p-2 rounded-md text-gray-600 hover:text-accent 
                        dark:text-gray-400 dark:hover:text-white focus:outline-none"
             >
               <Hamburger toggled={isMobileMenuOpen} toggle={setIsMobileMenuOpen} size={20} />

@@ -167,9 +167,9 @@ export default function MastheadPage() {
           priority
         />
         
-        {/* Overlay */}
-        <div className="absolute inset-0 bg-black/40"></div>
-        
+       {/* Overlay for text readability */}
+              <div className="absolute inset-0 bg-gradient-to-r from-gray-900/50 to-accent/40"></div>
+      
         {/* Text Content */}
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
