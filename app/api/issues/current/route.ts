@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
     apiUrl.searchParams.append('count', '1');
     apiUrl.searchParams.append('apiToken', OJS_API_KEY);
 
-    console.log('Fetching current issue from:', apiUrl.toString());
+    // console.log('Fetching current issue from:', apiUrl.toString());
 
     const response = await fetch(apiUrl.toString(), {
       method: 'GET',
