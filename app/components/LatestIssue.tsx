@@ -123,7 +123,7 @@ export default function LatestIssue() {
         
         <Link 
           href={`/issues/${issue.id}`}
-          className="inline-block bg-accent text-white px-6 py-2 rounded hover:bg-blue-700"
+          className="inline-block bg-accent text-white px-6 py-2 rounded hover:bg-primary transition-colors duration-200"
         >
           View Articles in This Issue
         </Link>

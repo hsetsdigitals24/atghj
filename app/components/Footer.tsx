@@ -6,9 +6,9 @@ export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-accent text-gray-300">
+    <footer className="bg-accent text-gray-300 sm:px-6 ">
       {/* Main Footer Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12">
+      <div className="max-w-7xl mx-auto px-4 lg:px-8 pt-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
           {/* Brand Section */}
           <div className="space-y-4">
@@ -194,7 +194,7 @@ export default function Footer() {
       </div>
 
       {/* Bottom Bar */}
-      <div className="border-t max-w-7xl mx-auto border-gray-800 flex flex-col md:flex-row items-center justify-between sm:px-6 py-4">
+      <div className="border-t max-w-7xl mx-auto border-gray-800 flex flex-col-reverse md:flex-row items-center justify-between  py-4">
         <div className="max-w-7xl sm:px-6  py-6">
           <p className="text-sm text-center">
             © {currentYear} African Translational & Global Health Journal

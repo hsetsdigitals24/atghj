@@ -146,7 +146,7 @@ export default function ContactPage() {
                 <ul className="space-y-2 text-gray-600">
                   <li>
                     <a
-                      href="https://atghj.africa/index.php/atghj/dashboard/mySubmissions?currentViewId=active"
+                      href={process.env.SUBMISSION_URL || "https://dashboard.atghj.africa/index.php/journal/submission"}
                       className="text-accent hover:text-accent/40"
                     >
                       Submit a Manuscript
@@ -192,7 +192,7 @@ export default function ContactPage() {
                   required
                   value={formData.userType}
                   onChange={handleChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-accent focus:ring-accent"
+                  className="mt-1 block w-full py-4 rounded-md border-gray-300 shadow-sm focus:border-accent focus:ring-accent"
                 >
                   <option value="">Select your role</option>
                   <option value="author">Author</option>
@@ -217,7 +217,7 @@ export default function ContactPage() {
                   required
                   value={formData.name}
                   onChange={handleChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                  className="mt-1 block w-full p-4 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                 />
               </div>
 
@@ -235,7 +235,7 @@ export default function ContactPage() {
                   required
                   value={formData.email}
                   onChange={handleChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                  className="mt-1 block w-full p-4 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                 />
               </div>
 
@@ -253,7 +253,7 @@ export default function ContactPage() {
                   required
                   value={formData.subject}
                   onChange={handleChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                  className="mt-1 block w-full p-4 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                 />
               </div>
 
@@ -271,7 +271,7 @@ export default function ContactPage() {
                   required
                   value={formData.message}
                   onChange={handleChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                  className="mt-1 block w-full py-2 px-4 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                 />
               </div>
 

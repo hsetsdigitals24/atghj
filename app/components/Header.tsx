@@ -96,11 +96,7 @@ export default function Header() {
 
       {/* Main Header */}
       <motion.header
-        className={`sticky top-0 z-50 transition-all duration-300 ${
-          isScrolled
-            ? 'bg-white/95 backdrop-blur-md shadow-lg'
-            : 'bg-white dark:bg-gray-900'
-        }`}
+        className={`sticky top-0 z-50 transition-all duration-300 bg-white/95 backdrop-blur-md shadow-lg`}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5, delay: 0.2 }}
@@ -137,8 +133,8 @@ export default function Header() {
                   >
                     <Link
                       href={item.href}
-                      className="text-gray-700 hover:text-primary dark:text-gray-300 
-                               dark:hover:text-white transition-colors duration-200 
+                      className="text-gray-700 hover:text-primary dark:text-gray-700 
+                               dark:hover:text-primary transition-colors duration-200 
                                text-sm font-medium"
                     >
                       {item.name}
@@ -151,8 +147,8 @@ export default function Header() {
                   <motion.button
                     whileHover={{ y: -2 }}
                     whileTap={{ y: 0 }}
-                    className="text-gray-700 hover:text-primary dark:text-gray-300 
-                             dark:hover:text-white transition-colors duration-200 
+                    className="text-gray-700 hover:text-primary dark:text-gray-700 
+                             dark:hover:text-primary transition-colors duration-200 
                              text-sm font-medium flex items-center"
                     onClick={() => setIsResourcesOpen(!isResourcesOpen)}
                   >
@@ -183,7 +179,7 @@ export default function Header() {
                         exit={{ opacity: 0, y: 10 }}
                         transition={{ duration: 0.2 }}
                         className="absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-white 
-                                 dark:bg-gray-800 ring-1 ring-black ring-opacity-5"
+                                 dark:bg-white ring-1 ring-black ring-opacity-5"
                       >
                         <div className="py-1">
                           {resourcesNav.map((item) => (
@@ -191,7 +187,7 @@ export default function Header() {
                               key={item.name}
                               href={item.href}
                               className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 
-                                       dark:text-gray-300 dark:hover:bg-gray-700"
+                                       dark:text-gray-700 dark:hover:bg-gray-700  dark:hover:text-white"
                               onClick={() => setIsResourcesOpen(false)}
                             >
                               {item.name}
@@ -227,7 +223,7 @@ export default function Header() {
               whileTap={{ scale: 0.95 }}
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="lg:hidden p-2 rounded-md text-gray-600 hover:text-accent 
-                       dark:text-gray-400 dark:hover:text-white focus:outline-none"
+                       dark:text-gray-800 dark:hover:text-white focus:outline-none"
             >
               <Hamburger toggled={isMobileMenuOpen} toggle={setIsMobileMenuOpen} size={20} />
             </motion.button>
@@ -251,7 +247,7 @@ export default function Header() {
                     href={item.href}
                     className="block px-3 py-2 text-base font-medium text-gray-700 
                              hover:bg-gray-50 hover:text-primary rounded-md 
-                             dark:text-gray-300 dark:hover:bg-gray-800 
+                             dark:text-gray-800 dark:hover:bg-gray-800 
                              dark:hover:text-white transition-colors duration-200"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
