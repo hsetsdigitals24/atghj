@@ -36,7 +36,7 @@ export default function HeroSection() {
           
           <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             <div>
-              <div className="text-3xl font-bold">5</div>
+              <div className="text-3xl font-bold">4</div>
               <div className="text-gray-300">Issues per Year</div>
             </div>
             <div>
