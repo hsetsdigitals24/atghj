@@ -3,7 +3,8 @@ import hero from '../../public/images/hero.jpg'
 
 export default function HeroSection() {
   return (
-    <div className="relative bg-gradient-to-r from-indigo-900 to-blue-800 text-white bg-no-repeat bg-cover bg-center" style={{ backgroundImage: `url(${hero.src})`}}>
+    <div className="relative text-white bg-no-repeat bg-cover bg-center" 
+      style={{ backgroundImage: `url(${hero.src})` }}>
       <div className="absolute inset-0">
         <div className="absolute inset-0 bg-black opacity-50"></div>
         <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/60"></div>
@@ -22,7 +23,7 @@ export default function HeroSection() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link 
               href={process.env.SUBMISSION_URL || "https://dashboard.atghj.africa/index.php/journal/submission"}
-              className="px-8 py-3 bg-primary hover:bg-indigo-700 rounded-md font-semibold transition-colors duration-200"
+              className="px-8 py-3 bg-primary hover:bg-accent rounded-md font-semibold transition-colors duration-200"
             >
               Submit Manuscript
             </Link>

@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import Link from 'next/link';
-import { CheckIcon, HourglassIcon, ListCheckIcon } from 'lucide-react';
+import Link from 'next/link'; 
+import { BiCheck, BiHourglass } from 'react-icons/bi';
+import { GoChecklist } from 'react-icons/go';
 
 interface Stage {
   id: number;
@@ -298,9 +299,9 @@ export default function ArticlePage() {
                           : 'bg-gray-200 text-gray-600'
                       }`}>
                         {/* {getStageIcon(stage.label).charAt(0)} */}
-                         {stage.isActiveStage && <ListCheckIcon /> }
-                          {stage.id < article.stageId! && <CheckIcon /> }
-                          {stage.id > article.stageId! && <HourglassIcon /> }
+                         {stage.isActiveStage && <GoChecklist/> }
+                          {stage.id < article.stageId! && <BiCheck /> }
+                          {stage.id > article.stageId! && <BiHourglass /> }
                       </div>
                       <div className="flex-1">
                         <p className="font-semibold text-gray-900">{stage.label}</p>

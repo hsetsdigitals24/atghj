@@ -1,37 +1,62 @@
+import Image from "next/image";
+import hero from "../../public/images/hero.jpg";
+
 export default function PrivacyPolicyPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-blue-800 to-indigo-900 py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl font-bold text-white mb-4">Privacy Policy</h1>
-          <p className="text-xl text-blue-100">
-            How we handle and protect your information
+ <div className="relative h-96 overflow-hidden">
+        {/* Background Image */}
+        <Image
+          src={hero}
+          alt="Privacy Policy"
+          fill
+          className="object-cover"
+          priority
+        />
+
+        {/* Overlay for text readability */}
+        <div className="absolute inset-0 bg-gradient-to-r from-gray-900/50 to-accent/40"></div>
+
+        {/* Content */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center w-full">
+           
+            <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">
+            Privacy Policy
+          </h1>
+            <p className="text-lg mx-auto text-gray-50 max-w-3xl mb-4">
+            How we handle and protect your information.
           </p>
+          </div>
         </div>
       </div>
+     
 
       {/* Main Content */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="prose prose-lg max-w-none">
           {/* Last Updated */}
-          <p className="text-sm text-gray-500">Last Updated: November 8, 2025</p>
+          <p className="text-sm text-gray-500">
+            Last Updated: November 18, 2025
+          </p>
 
           {/* Introduction */}
           <section className="mb-12">
             <h2>Introduction</h2>
             <p>
-              The African Translational & Global Health Journal (ATGHJ) is committed 
-              to protecting the privacy of our users. This Privacy Policy explains how 
-              we collect, use, disclose, and safeguard your information when you interact 
-              with our journal website and submission system.
+              The African Translational & Global Health Journal (ATGHJ) is
+              committed to protecting the privacy of our users. This Privacy
+              Policy explains how we collect, use, disclose, and safeguard your
+              information when you interact with our journal website and
+              submission system.
             </p>
           </section>
 
           {/* Information We Collect */}
           <section className="mb-12">
             <h2>Information We Collect</h2>
-            
+
             <h3>Account Information</h3>
             <ul>
               <li>Name and academic titles</li>
@@ -66,19 +91,19 @@ export default function PrivacyPolicyPage() {
             <h2>How We Use Your Information</h2>
             <ul>
               <li>
-                <strong>Manuscript Processing:</strong> To manage the peer review and 
-                publication process
+                <strong>Manuscript Processing:</strong> To manage the peer
+                review and publication process
               </li>
               <li>
-                <strong>Communication:</strong> To send notifications about submission 
-                status, review requests, and journal updates
+                <strong>Communication:</strong> To send notifications about
+                submission status, review requests, and journal updates
               </li>
               <li>
-                <strong>Account Management:</strong> To maintain your user account and 
-                provide access to journal services
+                <strong>Account Management:</strong> To maintain your user
+                account and provide access to journal services
               </li>
               <li>
-                <strong>Quality Improvement:</strong> To analyze and improve our 
+                <strong>Quality Improvement:</strong> To analyze and improve our
                 services and user experience
               </li>
             </ul>
@@ -88,8 +113,8 @@ export default function PrivacyPolicyPage() {
           <section className="mb-12">
             <h2>Data Protection</h2>
             <p>
-              We implement appropriate technical and organizational measures to protect 
-              your personal information, including:
+              We implement appropriate technical and organizational measures to
+              protect your personal information, including:
             </p>
             <ul>
               <li>Secure SSL/TLS encryption for all data transmission</li>
@@ -103,18 +128,18 @@ export default function PrivacyPolicyPage() {
           {/* Data Sharing */}
           <section className="mb-12">
             <h2>Data Sharing and Disclosure</h2>
-            <p>
-              We may share your information with:
-            </p>
+            <p>We may share your information with:</p>
             <ul>
               <li>Editorial team members for manuscript processing</li>
               <li>Peer reviewers (with appropriate anonymization)</li>
               <li>Publishing partners for accepted manuscripts</li>
-              <li>Technical service providers who assist in journal operations</li>
+              <li>
+                Technical service providers who assist in journal operations
+              </li>
             </ul>
             <p>
-              We do not sell or rent your personal information to third parties for 
-              marketing purposes.
+              We do not sell or rent your personal information to third parties
+              for marketing purposes.
             </p>
           </section>
 
@@ -136,8 +161,8 @@ export default function PrivacyPolicyPage() {
           <section className="mb-12">
             <h2>Cookie Policy</h2>
             <p>
-              We use cookies and similar technologies to improve your browsing 
-              experience and analyze website traffic. You can control cookie 
+              We use cookies and similar technologies to improve your browsing
+              experience and analyze website traffic. You can control cookie
               preferences through your browser settings.
             </p>
           </section>
@@ -146,8 +171,8 @@ export default function PrivacyPolicyPage() {
           <section className="mb-12">
             <h2>Contact Us</h2>
             <p>
-              For any privacy-related questions or requests, please contact our Data 
-              Protection Officer:
+              For any privacy-related questions or requests, please contact our
+              Data Protection Officer:
             </p>
             <div className="bg-gray-100 p-4 rounded-lg mt-4">
               <p>Email: privacy@atghj.africa</p>
@@ -160,24 +185,32 @@ export default function PrivacyPolicyPage() {
           <section className="mb-12">
             <h2>Updates to This Policy</h2>
             <p>
-              We may update this Privacy Policy periodically to reflect changes in our 
-              practices or legal requirements. We will notify users of any material 
-              changes through our website or direct communication.
+              We may update this Privacy Policy periodically to reflect changes
+              in our practices or legal requirements. We will notify users of
+              any material changes through our website or direct communication.
             </p>
           </section>
         </div>
 
         {/* Quick Links */}
         <div className="mt-16 bg-white p-6 rounded-lg shadow-sm">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Related Policies</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">
+            Related Policies
+          </h2>
           <div className="grid gap-4">
             <a href="/terms" className="text-indigo-600 hover:text-indigo-800">
               Terms of Use
             </a>
-            <a href="/author-guidelines" className="text-indigo-600 hover:text-indigo-800">
+            <a
+              href="/author-guidelines"
+              className="text-indigo-600 hover:text-indigo-800"
+            >
               Author Guidelines
             </a>
-            <a href="/publication-ethics" className="text-indigo-600 hover:text-indigo-800">
+            <a
+              href="/publication-ethics"
+              className="text-indigo-600 hover:text-indigo-800"
+            >
               Publication Ethics
             </a>
           </div>

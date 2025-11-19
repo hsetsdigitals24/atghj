@@ -4,15 +4,41 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import logo from '../../public/logo/logo.jpg';
-// import { sub } from 'date-fns';
+import logo from '../../public/logo/logo.png';
+import { Divide as Hamburger } from 'hamburger-react'
+
+
+interface CurrentIssue {
+  id: number;
+  volume?: number;
+  number?: string;
+  year?: number;
+  month?: string;
+  formattedDate?: string;
+}
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  // const [isLanguage, setLanguage] = useState('en');
   const [isResourcesOpen, setIsResourcesOpen] = useState(false);
-  const submission_url = process.env.SUBMISSION_URL
+  const [currentIssue, setCurrentIssue] = useState<CurrentIssue | null>(null);
+  const submission_url = process.env.NEXT_PUBLIC_SUBMISSION_URL;
+
+  // Fetch current issue
+  useEffect(() => {
+    async function fetchCurrentIssue() {
+      try {
+        const response = await fetch('/api/header');
+        if (response.ok) {
+          const data = await response.json();
+          setCurrentIssue(data);
+        }
+      } catch (error) {
+        console.error('Error fetching current issue:', error);
+      }
+    }
+    fetchCurrentIssue();
+  }, []);
 
   // Handle scroll events
   useEffect(() => {
@@ -26,12 +52,12 @@ export default function Header() {
   const mainNav = [
     { name: 'Current Issue', href: '/' },
     { name: 'Archive', href: '/archive' },
+    {name: 'Announcements', href: '/announcements' },
     { name: 'Dashboard', href: submission_url || "https://dashboard.atghj.africa/index.php/journal/submission" },
     { name: 'Author Guidelines', href: '/guidelines' },
   ];
 
   const secondaryNav = [
-    // { name: 'Editorial Board', href: '/board' },
     { name: 'About', href: '/about' },
     { name: 'Contact', href: '/contact' },
   ];
@@ -43,13 +69,18 @@ export default function Header() {
     { name: 'Contact', href: '/contact' },
   ];
 
+  // Format announcement text
+  const announcementText = currentIssue 
+    ? `Volume ${currentIssue.volume}, Issue ${currentIssue.number} - ${currentIssue.month} ${currentIssue.year}`
+    : 'Volume 1, Issue 1 - October 2025';
+
   return (
     <>
       {/* Announcement Bar */}
       <motion.div
         initial={{ y: -100 }}
         animate={{ y: 0 }}
-        className="bg-primary text-grey-800"
+        className="bg-primary text-gray-800"
       >
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center h-10 text-sm">
@@ -57,13 +88,7 @@ export default function Header() {
               Bridging Research, Innovation, and Health Equity in Africa!
             </p>
             <div className="flex items-center space-x-4">
-              <span>Volume 1, Issue 1 - October 2025</span>
-              {/* <button
-                onClick={() => setLanguage(isLanguage === 'en' ? 'en' : 'fr' )}
-                className="text-white hover:text-gray-200 transition-colors"
-              >
-                {isLanguage === 'en' ? 'EN' : 'FR'}
-              </button> */}
+              <span>{announcementText}</span>
             </div>
           </div>
         </div>
@@ -71,11 +96,7 @@ export default function Header() {
 
       {/* Main Header */}
       <motion.header
-        className={`sticky top-0 z-50 transition-all duration-300 ${
-          isScrolled
-            ? 'bg-white/95 backdrop-blur-md shadow-lg'
-            : 'bg-white dark:bg-gray-900'
-        }`}
+        className={`sticky top-0 z-50 transition-all duration-300 bg-white/95 backdrop-blur-md shadow-lg`}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5, delay: 0.2 }}
@@ -92,29 +113,11 @@ export default function Header() {
                 <Image
                   src={logo}
                   alt="ATGHJ Logo"
-                  width={80}
-                  height={48}
-                  className="w-55 h-55"
+                  width={160}
+                  height={50}
+                  className="w-75 h-auto"
                   priority
                 />
-                <div className="flex flex-col">
-                  <motion.span 
-                    className="text-2xl font-bold tracking-tight text-accent dark:text-white"
-                    initial={{ opacity: 0, y: 5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 }}
-                  >
-                    ATGHJ
-                  </motion.span>
-                  <motion.span 
-                    className="text-sm text-accent dark:text-gray-900"
-                    initial={{ opacity: 0, y: 5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.4 }}
-                  >
-                    African Translational & Global Health Journal
-                  </motion.span>
-                </div>
               </Link>
             </motion.div>
 
@@ -130,8 +133,8 @@ export default function Header() {
                   >
                     <Link
                       href={item.href}
-                      className="text-gray-700 hover:text-primary-600 dark:text-gray-300 
-                               dark:hover:text-white transition-colors duration-200 
+                      className="text-gray-700 hover:text-primary dark:text-gray-700 
+                               dark:hover:text-primary transition-colors duration-200 
                                text-sm font-medium"
                     >
                       {item.name}
@@ -144,8 +147,8 @@ export default function Header() {
                   <motion.button
                     whileHover={{ y: -2 }}
                     whileTap={{ y: 0 }}
-                    className="text-gray-700 hover:text-primary-600 dark:text-gray-300 
-                             dark:hover:text-white transition-colors duration-200 
+                    className="text-gray-700 hover:text-primary dark:text-gray-700 
+                             dark:hover:text-primary transition-colors duration-200 
                              text-sm font-medium flex items-center"
                     onClick={() => setIsResourcesOpen(!isResourcesOpen)}
                   >
@@ -176,7 +179,7 @@ export default function Header() {
                         exit={{ opacity: 0, y: 10 }}
                         transition={{ duration: 0.2 }}
                         className="absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-white 
-                                 dark:bg-gray-800 ring-1 ring-black ring-opacity-5"
+                                 dark:bg-white ring-1 ring-black ring-opacity-5"
                       >
                         <div className="py-1">
                           {resourcesNav.map((item) => (
@@ -184,7 +187,7 @@ export default function Header() {
                               key={item.name}
                               href={item.href}
                               className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 
-                                       dark:text-gray-300 dark:hover:bg-gray-700"
+                                       dark:text-gray-700 dark:hover:bg-gray-700  dark:hover:text-white"
                               onClick={() => setIsResourcesOpen(false)}
                             >
                               {item.name}
@@ -203,7 +206,7 @@ export default function Header() {
                 whileTap={{ scale: 0.95 }}
               >
                 <Link
-                  href={submission_url|| "https://dashboard.atghj.africa/index.php/journal/submission"} 
+                  href={submission_url || "https://dashboard.atghj.africa/index.php/journal/submission"} 
                   className="inline-flex items-center px-6 py-2.5 border border-transparent 
                            text-sm font-semibold rounded-full text-white bg-accent
                            hover:bg-primary transition-colors duration-200 
@@ -219,31 +222,10 @@ export default function Header() {
             <motion.button
               whileTap={{ scale: 0.95 }}
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="lg:hidden p-2 rounded-md text-gray-600 hover:text-gray-900 
-                       dark:text-gray-400 dark:hover:text-white focus:outline-none"
+              className="lg:hidden p-2 rounded-md text-gray-600 hover:text-accent 
+                       dark:text-gray-800 dark:hover:text-white focus:outline-none"
             >
-              <span className="sr-only">Open main menu</span>
-              <svg
-                className="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth="1.5"
-                stroke="currentColor"
-              >
-                {isMobileMenuOpen ? (
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                ) : (
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
-                  />
-                )}
-              </svg>
+              <Hamburger toggled={isMobileMenuOpen} toggle={setIsMobileMenuOpen} size={20} />
             </motion.button>
           </div>
         </div>
@@ -265,7 +247,7 @@ export default function Header() {
                     href={item.href}
                     className="block px-3 py-2 text-base font-medium text-gray-700 
                              hover:bg-gray-50 hover:text-primary rounded-md 
-                             dark:text-gray-300 dark:hover:bg-gray-800 
+                             dark:text-gray-800 dark:hover:bg-gray-800 
                              dark:hover:text-white transition-colors duration-200"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
@@ -274,10 +256,10 @@ export default function Header() {
                 ))}
                 <div className="px-3 py-3">
                   <Link
-                    href="https://atghj.africa/index.php/atghj/dashboard/mySubmissions?currentViewId=active"
+                    href={submission_url || "https://dashboard.atghj.africa/index.php/journal/submission"}
                     className="w-full inline-flex justify-center items-center px-4 py-2.5 
                              border border-transparent text-base font-medium rounded-md 
-                             text-white bg-primary-600 hover:bg-primary 
+                             text-white bg-primary hover:bg-primary 
                              transition-colors duration-200"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >

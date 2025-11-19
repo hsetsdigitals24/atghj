@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
 
   for (const endpoint of endpoints) {
     const apiUrl = new URL(`${OJS_BASE_URL}${endpoint}`);
-    apiUrl.searchParams.append('apiKey', OJS_API_KEY);
+    apiUrl.searchParams.append('apiToken', OJS_API_KEY);
     apiUrl.searchParams.append('count', '1');
 
     console.log(`Testing: ${apiUrl.toString()}`);
