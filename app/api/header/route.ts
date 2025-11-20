@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
     issueUrl.searchParams.append('count', '1');
     issueUrl.searchParams.append('apiToken', OJS_API_KEY);
 
-    console.log('📥 Fetching current issue from:', issueUrl.toString());
+    // console.log('📥 Fetching current issue from:', issueUrl.toString());
 
     const response = await fetch(issueUrl.toString(), {
       method: 'GET',
@@ -73,7 +73,7 @@ export async function GET(request: NextRequest) {
       })
     };
 
-    console.log('✅ Current issue found:', currentIssueData);
+    // console.log('✅ Current issue found:', currentIssueData); 
 
     return NextResponse.json(currentIssueData);
   } catch (error) {

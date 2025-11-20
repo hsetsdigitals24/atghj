@@ -31,7 +31,7 @@ async function getPublicationData(
 ): Promise<Publication | null> {
   try {
     // Ensure correct query parameter separator for apiToken 
-    const url = `${OJS_API_BASE}/submissions/${submissionId}/publications/${publicationId}?apiToken=${OJS_API_TOKEN}`;
+    const url = `${OJS_API_BASE}/issues/${submissionId}/publications/${publicationId}?apiToken=${OJS_API_TOKEN}`;
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
     };
@@ -62,6 +62,8 @@ async function getGalleyData(
       return null;
     }
 
+    console.log({"publication": publication});
+
     const pdfGalley = publication.galleys?.find(g => g.label === 'PDF');
 
     if (pdfGalley) {
@@ -82,10 +84,10 @@ async function getGalleyData(
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { submissionId: string; publicationsId: string } }
+  { params }: { params: Promise<{ submissionId: string; publicationsId: string }> }
 ) {
   try {
-    const { submissionId, publicationsId } = params;
+    const { submissionId, publicationsId } = await params;
 
     if (!submissionId || !publicationsId) {
       return NextResponse.json(

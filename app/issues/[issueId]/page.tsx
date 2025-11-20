@@ -45,7 +45,7 @@ export default function IssueArticlesPage() {
           throw new Error('Failed to fetch articles');
         }
 
-        const data: OJSResponse = await response.json();
+        const data: OJSResponse = await response.json(); 
         setArticles(data.items || []);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred');
@@ -92,7 +92,7 @@ console.log({"article": articles})
             );
             
             if (!publication) return null;
-
+            console.log({"publication_in_page": publication});
             return (
               <article key={submission.id} className="border p-6 rounded-lg">
                 <h2 className="text-xl font-semibold mb-2">
@@ -122,17 +122,16 @@ console.log({"article": articles})
                     />
                   </div>
                 )}
-                
-                {/* {publication.urlPublished && ( */}
+                 
                   <Link
-                    href={`/articles/${publication.id}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  href={{
+                    pathname: `/ArticlePreviewPage`,
+                    query: {publication: JSON.stringify(publication), submission: JSON.stringify(submission) }
+                    }} 
                     className="inline-block mt-4 text-accent hover:underline"
                   >
                     View Full Article →
-                  </Link>
-                {/* )} */}
+                  </Link> 
               </article>
             );
           })}
