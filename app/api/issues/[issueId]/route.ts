@@ -50,7 +50,7 @@ if(issueId === undefined || issueId === null){
     }
 
     const data = await response.json();
-    console.log({"data fetched from OJS in route": data});
+    // console.log({"data fetched from OJS in route": data});
     return NextResponse.json(data);
   } catch (error) {
     console.error('Error fetching articles from OJS:', error);
