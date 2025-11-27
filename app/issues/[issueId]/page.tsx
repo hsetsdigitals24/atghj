@@ -130,18 +130,7 @@ console.log({"article": articles[1]?.publications[0]  });
                     />
                   </div>
                 )}
-<<<<<<< HEAD
-                 
-                  <Link
-                  href={{
-                    pathname: `/ArticlePreviewPage`,
-                    query: {publication: JSON.stringify(publication), submission: JSON.stringify(submission) }
-                    }} 
-                    className="inline-block mt-4 text-accent hover:underline"
-                  >
-                    View Full Article →
-                  </Link> 
-=======
+
                 
                 {/* {publication.urlPublished && ( */}
                   <Link                                       
@@ -153,7 +142,6 @@ console.log({"article": articles[1]?.publications[0]  });
                     View →
                   </Link>
                 {/* )} */}
->>>>>>> 4206553 (completed articles page with other textual edits, details and info for the journal)
               </article>
             );
           })}
