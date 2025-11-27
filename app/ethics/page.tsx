@@ -304,11 +304,7 @@ export default function PublicationEthicsPage() {
             Publication Ethics
           </h1>
           <p className="text-lg text-gray-600 max-w-3xl mb-4">
-            ATGHJ is committed to upholding the highest standards of research
-            integrity and publication ethics. We follow the guidelines
-            established by the Committee on Publication Ethics (COPE),
-            International Committee of Medical Journal Editors (ICMJE), and
-            World Association of Medical Editors (WAME).
+           Plagiarism Policy Plagiarism detection is conducted using Turnitin (≤15% similarity allowed). Plagiarism, data fabrication, and duplicate submissions lead to rejection and blacklisting. Conflicts of Interest, Authors, reviewers, and editors must disclose financial or personal relationships that may bias research. Data Sharing & Transparency, Authors must provide raw data upon request. Clinical trials must be registered (e.g., ClinicalTrials.gov). Corrections & Retractions Minor errors are corrected via an Erratum. Major ethical concerns lead to Retraction Notices following COPE guidelines. 
           </p>
           <div className="mt-4 flex gap-2 text-sm text-gray-500">
             <Link href="/" className="text-accent hover:underline">

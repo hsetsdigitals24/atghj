@@ -178,12 +178,12 @@ export default function Footer() {
             {/* Developed By Section */}
             <div className="pt-4 border-t border-gray-700">
               <p className="text-sm text-gray-400">
-                Developed by
+                Developed by <br/>
                 <a
                   href="https://h-sets.com"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-white hover:text-opacity-80 transition-colors font-semibold ml-1"
+                  className="text-white hover:text-opacity-80 transition-colors font-semibold"
                 >
                   H-Sets Digital & IT Solutions
                 </a>

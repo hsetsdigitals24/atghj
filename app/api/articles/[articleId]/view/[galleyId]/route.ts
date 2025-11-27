@@ -6,53 +6,46 @@ export async function GET(
 ) {
   // ✅ Await params before destructuring
   const { articleId, galleyId } = await params;
-  
+
   const OJS_BASE_URL = process.env.NEXT_PUBLIC_OJS_API_URL;
-  
-  if (!OJS_BASE_URL) {
+  const OJS_API_KEY = process.env.NEXT_PUBLIC_OJS_API_KEY;
+
+  if (!OJS_BASE_URL || !OJS_API_KEY) {
     return NextResponse.json(
       { error: 'OJS configuration missing' },
       { status: 500 }
     );
   }
 
-  if (!articleId || !galleyId) {
-    return NextResponse.json(
-      { error: 'Missing articleId or galleyId' },
-      { status: 400 }
-    );
-  }
-
   try {
-    // Construct the view URL (inline display)
-    const viewUrl = `${OJS_BASE_URL}/article/view/${articleId}/${galleyId}`;
+    // Fetch galley file from OJS
+    const galleyUrl = new URL(
+      `${OJS_BASE_URL}/submissions/${articleId}/galleys/${galleyId}`
+    );
+    galleyUrl.searchParams.append('apiToken', OJS_API_KEY);
 
-    console.log('📖 Viewing article from:', viewUrl);
+    console.log('📥 Fetching galley metadata from:', galleyUrl.toString());
 
-    const response = await fetch(viewUrl);
-
-    if (!response.ok) {
-      console.error('❌ View failed:', response.status);
-      throw new Error(`Failed to fetch file: ${response.status}`);
-    }
-
-    const fileBlob = await response.blob();
-    const contentType = response.headers.get('content-type') || 'application/pdf';
-    const arrayBuffer = await fileBlob.arrayBuffer();
-
-    console.log('✅ File loaded successfully');
-
-    return new NextResponse(arrayBuffer, {
+    const response = await fetch(galleyUrl.toString(), {
+      method: 'GET',
       headers: {
-        'Content-Type': contentType,
-        'Content-Disposition': 'inline', // Display inline instead of download
-        'Cache-Control': 'public, max-age=86400',
+        Accept: 'application/json',
       },
     });
+
+    if (!response.ok) {
+      console.error('❌ Galley fetch failed:', response.status);
+      throw new Error(`Failed to fetch galley: ${response.status}`);
+    }
+
+    const galleyData = await response.json();
+    console.log('✅ Galley data retrieved:', galleyData);
+
+    return NextResponse.json(galleyData);
   } catch (error) {
-    console.error('❌ Error viewing article file:', error);
+    console.error('❌ Error fetching galley:', error);
     return NextResponse.json(
-      { error: 'Failed to view file' },
+      { error: 'Failed to fetch galley' },
       { status: 500 }
     );
   }

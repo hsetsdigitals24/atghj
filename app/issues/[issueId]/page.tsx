@@ -12,6 +12,9 @@ interface Publication {
     id: number;
     fullName: string;
   }>;
+  galleys?: {
+    id: number;
+  };
   pages?: string;
   datePublished?: string;
   urlPublished?: string;
@@ -56,7 +59,12 @@ export default function IssueArticlesPage() {
 
     fetchArticles();
   }, [issueId]);
-console.log({"article": articles})
+
+
+console.log({"article": articles[1]?.publications[0]  });
+
+
+
   const getLocalizedValue = (value: string | { [locale: string]: string }) => {
     if (typeof value === 'string') return value;
     return value['en'] || value['en_US'] || Object.values(value)[0] || '';
@@ -122,6 +130,7 @@ console.log({"article": articles})
                     />
                   </div>
                 )}
+<<<<<<< HEAD
                  
                   <Link
                   href={{
@@ -132,6 +141,19 @@ console.log({"article": articles})
                   >
                     View Full Article →
                   </Link> 
+=======
+                
+                {/* {publication.urlPublished && ( */}
+                  <Link                                       
+                    href={`/articles/${publication.id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-block mt-4 text-accent hover:underline"
+                  >
+                    View →
+                  </Link>
+                {/* )} */}
+>>>>>>> 4206553 (completed articles page with other textual edits, details and info for the journal)
               </article>
             );
           })}

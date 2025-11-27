@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import Link from 'next/link'; 
-import { BiCheck, BiHourglass } from 'react-icons/bi';
-import { GoChecklist } from 'react-icons/go';
+import Link from 'next/link';
+import { motion } from 'framer-motion';
+import { BiCheck, BiEdit } from 'react-icons/bi';
+import { TfiWrite } from 'react-icons/tfi';
 
 interface Stage {
   id: number;
@@ -37,6 +38,7 @@ interface SubmissionFile {
   genreName: { [locale: string]: string };
   url: string;
   revisions?: FileRevision[];
+  submissionFileId?: number;
 }
 
 interface Galley {
@@ -46,6 +48,7 @@ interface Galley {
   file?: SubmissionFile;
   urlPublished?: string;
   isApproved?: boolean;
+  submissionFileId?: number;
 }
 
 interface Publication {
@@ -55,6 +58,7 @@ interface Publication {
   fullTitle?: { [locale: string]: string };
   authorsString?: string;
   authorsStringShort?: string;
+  authorsStringIncludeInBrowse?: string;
   pages?: string | null;
   datePublished?: string;
   doiObject?: { doi: string } | null;
@@ -64,6 +68,7 @@ interface Publication {
   version?: number;
   locale?: string;
   galleys?: Galley[];
+  submissionId?: number;
 }
 
 interface Submission {
@@ -107,8 +112,9 @@ export default function ArticlePage() {
         }
 
         const data = await response.json();
-        setArticle(data);
-      } catch (err) {
+        console.log('Article Data:', data); 
+        setArticle(data.items[0]);
+      } catch (err) { 
         setError(err instanceof Error ? err.message : 'An error occurred');
       } finally {
         setLoading(false);
@@ -117,6 +123,8 @@ export default function ArticlePage() {
 
     fetchArticle();
   }, [articleId]);
+
+  // console.log('Article Data:', article);
 
   const getLocalizedValue = (value: string | { [locale: string]: string } | undefined) => {
     if (!value) return '';
@@ -154,6 +162,7 @@ export default function ArticlePage() {
     );
   }
 
+
   if (!article) {
     return (
       <div className="container mx-auto p-8">
@@ -162,14 +171,26 @@ export default function ArticlePage() {
     );
   }
 
-  const publication = article.publications.find(
-    p => p.id === article.currentPublicationId
-  );
+  // Handle both direct publication object and nested publications array
+  let publication: Publication | null = null;
+  
+  if (article.publications && Array.isArray(article.publications)) {
+    publication = article.publications.find(p => p.id === article.currentPublicationId) || null;
+  } else if ('title' in article && 'datePublished' in article) {
+    // If article IS the publication object
+    publication = article as Publication;
+  }
 
   if (!publication) {
     return (
       <div className="container mx-auto p-8">
-        <p>Publication data not available.</p>
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+          <h2 className="text-xl font-semibold text-yellow-800 mb-2">Publication Data Issue</h2>
+          <p className="text-yellow-700">Publication data not available. Please try again later.</p>
+          <Link href="/archive" className="inline-block mt-4 text-yellow-600 hover:underline">
+            ← Back to Archive
+          </Link>
+        </div>
       </div>
     );
   }
@@ -195,329 +216,442 @@ export default function ArticlePage() {
   // };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-      {/* Header with Status */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex items-center justify-between mb-4">
-            <nav className="text-sm text-gray-500">
-              <Link href="/" className="text-accent hover:underline">Home</Link>
-              <span className="mx-2">/</span>
-              <span>Article #{article.id}</span>
-            </nav>
-            <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${getStatusColor(article.status)}`}>
-              {article.statusLabel}
-            </span>
-          </div>
-
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            {getLocalizedValue(publication.title)}
-          </h1>
-          
-          {publication.subtitle && (
-            <p className="text-xl text-gray-600 mb-4">
-              {getLocalizedValue(publication.subtitle)}
-            </p>
-          )}
-
-          <p className="text-gray-600">
-            {publication.authorsString}
-          </p>
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
+      {/* Animated Background Elements */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-accent/5 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
       </div>
 
-      {/* Main Content */}
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Article Content */}
-          <div className="lg:col-span-2">
-            {/* Metadata Cards */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+      {/* Hero Header with Gradient */}
+      <motion.div 
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="relative bg-gradient-to-r from-primary/10 to-accent/10 border-b border-gray-200 backdrop-blur-sm"
+      >
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          {/* Breadcrumb */}
+          <motion.nav 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2 }}
+            className="flex items-center gap-2 text-sm text-gray-600 mb-6"
+          >
+            <Link href="/" className="hover:text-accent transition-colors">Home</Link>
+            <span className="text-gray-400">/</span>
+            <Link href="/archive" className="hover:text-accent transition-colors">Archive</Link>
+            <span className="text-gray-400">/</span>
+            <span className="text-accent font-semibold">Article #{article.id}</span>
+          </motion.nav>
+
+          {/* Status Badge */}
+          <div className="flex items-start justify-between gap-4 mb-6">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.3 }}
+            >
+              <motion.span 
+                whileHover={{ scale: 1.05 }}
+                className={`inline-flex items-center gap-2 px-4 py-2 rounded-full font-semibold text-sm ${getStatusColor(article.status)} backdrop-blur-sm transition-all`}
+              >
+                {article.status === 3 && <BiCheck className="w-5 h-5" />}
+                {article.statusLabel}
+              </motion.span>
+            </motion.div>
+
+            {/* DOI if available */}
+            {publication.doiObject?.doi && (
+              <motion.a
+                whileHover={{ scale: 1.02 }}
+                href={`https://doi.org/${publication.doiObject.doi}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-accent hover:underline"
+              >
+                DOI: {publication.doiObject.doi}
+              </motion.a>
+            )}
+          </div>
+
+          {/* Title */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+          >
+            <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-4 leading-tight">
+              {getLocalizedValue(publication.title)}
+            </h1>
+
+            {/* Authors */}
+            <motion.p 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+              className="text-xl text-gray-700 mb-6 font-medium"
+            >
+              {publication.authorsString}
+            </motion.p>
+
+            {/* Publication Info */}
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.6 }}
+              className="flex flex-wrap items-center gap-4 text-gray-600"
+            >
               {publication.datePublished && (
-                <div className="bg-white rounded-lg border p-4">
-                  <p className="text-xs text-gray-500 font-semibold uppercase">Published</p>
-                  <p className="text-sm font-bold text-gray-900 mt-1">
-                    {new Date(publication.datePublished).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'short',
-                      day: 'numeric'
-                    })}
-                  </p>
+                <div className="flex items-center gap-2">
+                  <svg className="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  <span>{new Date(publication.datePublished).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
                 </div>
               )}
+              <span className="text-gray-400">•</span>
+              <span>Version {publication.version}</span>
               {publication.pages && (
-                <div className="bg-white rounded-lg border p-4">
-                  <p className="text-xs text-gray-500 font-semibold uppercase">Pages</p>
-                  <p className="text-sm font-bold text-gray-900 mt-1">{publication.pages}</p>
-                </div>
+                <>
+                  <span className="text-gray-400">•</span>
+                  <span>pp. {publication.pages}</span>
+                </>
               )}
-              {publication.version && (
-                <div className="bg-white rounded-lg border p-4">
-                  <p className="text-xs text-gray-500 font-semibold uppercase">Version</p>
-                  <p className="text-sm font-bold text-gray-900 mt-1">v{publication.version}</p>
-                </div>
-              )}
-              {article.editorAssigned && (
-                <div className="bg-white rounded-lg border p-4">
-                  <p className="text-xs text-gray-500 font-semibold uppercase">Editor</p>
-                  <p className="text-sm font-bold text-accent mt-1">✓ Assigned</p>
-                </div>
-              )}
-            </div>
+            </motion.div>
+          </motion.div>
+        </div>
+      </motion.div>
 
-            {/* Submission Details */}
-            <div className="bg-white rounded-lg border p-6 mb-8">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Submission Details</h2>
-              <div className="grid grid-cols-2 gap-6">
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">Submitted</p>
-                  <p className="font-semibold text-gray-900">
-                    {article.dateSubmitted ? new Date(article.dateSubmitted).toLocaleDateString() : 'N/A'}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">Last Modified</p>
-                  <p className="font-semibold text-gray-900">
-                    {article.lastModified ? new Date(article.lastModified).toLocaleDateString() : 'N/A'}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Workflow Stages */}
-            {article.stages && article.stages.length > 0 && (
-              <div className="bg-white rounded-lg border p-6 mb-8">
-                <h2 className="text-xl font-bold text-gray-900 mb-6">Submission Workflow</h2>
-                <div className="space-y-3">
-                  {article.stages.map((stage, id) => (
-                    <div key={id} className="flex items-center gap-4">
-                      <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-lg ${
-                        stage.isActiveStage 
-                          ? 'bg-accent text-white' 
-                          : stage.id < article.stageId! 
-                          ? 'bg-green-500 text-white' 
-                          : 'bg-gray-200 text-gray-600'
-                      }`}>
-                        {/* {getStageIcon(stage.label).charAt(0)} */}
-                         {stage.isActiveStage && <GoChecklist/> }
-                          {stage.id < article.stageId! && <BiCheck /> }
-                          {stage.id > article.stageId! && <BiHourglass /> }
+      {/* Main Content */}
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Main Content Column */}
+          <motion.div 
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.2 }}
+            className="lg:col-span-2 space-y-8"
+          >
+            {/* PDF Download & View Section - Featured */}
+            {publication.galleys && publication.galleys.length > 0 && (
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="group relative"
+              >
+                <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 to-accent/20 rounded-2xl blur opacity-0 group-hover:opacity-100 transition duration-500"></div>
+                
+                <div className="relative bg-white rounded-2xl p-8 border border-gray-200 hover:border-accent/50 transition-all">
+                  {/* Header */}
+                  <div className="mb-8 pb-6 border-b border-gray-100">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="p-3 bg-gradient-to-br from-primary/10 to-accent/10 rounded-xl">
+                        <svg className="w-6 h-6 text-accent" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm0 2h12v10H4V5z" />
+                        </svg>
                       </div>
-                      <div className="flex-1">
-                        <p className="font-semibold text-gray-900">{stage.label}</p>
-                        <p className="text-sm text-gray-600">
-                          {stage.isActiveStage &&  'Current stage'}
-                          {stage.id < article.stageId! && 'Completed'}
-                          {stage.id > article.stageId! && 'Pending'}
-                        </p>
+                      <div>
+                        <h2 className="text-2xl font-bold text-gray-900">Read Article</h2>
+                        <p className="text-sm text-gray-600 mt-1">Download or view the full PDF publication</p>
                       </div>
                     </div>
-                  ))}
+                  </div>
+
+                  {/* Author Info Card */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.35 }}
+                    className="bg-gradient-to-r from-primary/5 to-accent/5 rounded-xl p-4 mb-6 border border-primary/10"
+                  >
+                    <p className="text-xs text-gray-500 font-semibold uppercase mb-2">Authors</p>
+                    <p className="text-sm font-semibold text-gray-900">{publication.authorsString}</p>
+                    {publication.datePublished && (
+                      <p className="text-xs text-gray-600 mt-2">
+                        Published on {new Date(publication.datePublished).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                      </p>
+                    )}
+                  </motion.div>
+
+                  {/* Action Buttons */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {publication.galleys.map((galley, index) => (
+                      <motion.div
+                        key={galley.id}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.4 + index * 0.1 }}
+                        className="space-y-3"
+                      >
+                        {/* View Button */}
+                        <motion.a
+                          whileHover={{ scale: 1.02, y: -2 }}
+                          whileTap={{ scale: 0.98 }}
+                          href={`https://dashboard.atghj.africa/index.php/journal/article/view/${article.id}/${galley.id}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center justify-center gap-3 w-full px-6 py-4 bg-accent text-white font-semibold rounded-xl hover:shadow-lg transition-all group/btn"
+                        >
+                          <svg className="w-5 h-5 group-hover/btn:rotate-12 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                          </svg>
+                          <span>View PDF</span>
+                        </motion.a>
+
+                        {/* Download Button */}
+                        <motion.a
+                          whileHover={{ scale: 1.02, y: -2 }}
+                          whileTap={{ scale: 0.98 }}
+                          href={`https://dashboard.atghj.africa/index.php/journal/article/download/${article.id}/${galley.id}`}
+                          download
+                          className="flex items-center justify-center gap-3 w-full px-6 py-4 bg-gray-100 hover:bg-gray-200 text-gray-900 font-semibold rounded-xl transition-all group/btn"
+                        >
+                          <svg className="w-5 h-5 group-hover/btn:-translate-y-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                          </svg>
+                          <span>Download PDF</span>
+                        </motion.a>
+
+                        {/* Galley Info */}
+                        <motion.div
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ delay: 0.55 + index * 0.1 }}
+                          className="flex items-center justify-between text-xs text-gray-600 bg-gray-50 px-4 py-3 rounded-lg"
+                        >
+                          <span className="font-medium capitalize">{galley.label} Version</span>
+                          {galley.file?.mimetype && (
+                            <span className="bg-accent/10 text-accent px-2 py-1 rounded font-semibold">
+                              {galley.file.mimetype.split('/')[1].toUpperCase()}
+                            </span>
+                          )}
+                        </motion.div>
+                      </motion.div>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              </motion.div>
             )}
+
+            {/* Publication Details - Cards Grid */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              className="grid grid-cols-2 sm:grid-cols-4 gap-4"
+            >
+              
+              {publication.pages && (
+                <motion.div 
+                  whileHover={{ y: -4 }}
+                  className="bg-white rounded-xl border border-gray-200 p-4 hover:border-accent/50 transition-all"
+                >
+                  <p className="text-xs text-gray-500 font-semibold uppercase mb-2">Pages</p>
+                  <p className="text-lg font-bold text-gray-900">{publication.pages}</p>
+                </motion.div>
+              )}
+              
+              {article.editorAssigned && (
+                <motion.div 
+                  whileHover={{ y: -4 }}
+                  className="bg-gradient-to-br from-green-50 to-green-100/50 rounded-xl border border-green-200 p-4"
+                >
+                  <p className="text-xs text-green-600 font-semibold uppercase mb-2">Editor</p>
+                  <p className="text-lg font-bold text-green-700">✓ Assigned</p>
+                </motion.div>
+              )}
+            </motion.div>
+
+            {/* Submission Timeline */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
+              className="bg-white rounded-2xl border border-gray-200 p-8 hover:border-accent/50 transition-all"
+            >
+              <h2 className="text-2xl font-bold text-gray-900 mb-8 flex items-center gap-3">
+                <div className="p-2 bg-primary text-white rounded-lg">
+                  <svg className="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                </div>
+                Submission Timeline
+              </h2>
+
+              <div className="space-y-4">
+                {/* Submitted */}
+                <motion.div 
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.7 }}
+                  className="flex gap-4"
+                >
+                  <div className="flex flex-col items-center">
+                    <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center text-accent font-bold shadow-lg">
+                     <TfiWrite className="w-6 h-6"/>
+                    </div>
+                    <div className="w-1 h-12 bg-gradient-to-b from-accent to-transparent mt-2"></div>
+                  </div>
+                  <div className="pb-4">
+                    <p className="font-semibold text-gray-900">Submitted</p>
+                    <p className="text-sm text-gray-600">
+                      {article.dateSubmitted ? new Date(article.dateSubmitted).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'N/A'}
+                    </p>
+                  </div>
+                </motion.div>
+
+                {/* Last Modified */}
+                <motion.div 
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.75 }}
+                  className="flex gap-4"
+                >
+                  <div className="flex flex-col items-center">
+                    <div className="w-12 h-12 rounded-full  bg-gray-200 flex items-center justify-center text-accent font-bold shadow-lg">
+                    <BiEdit className="w-6 h-6" />
+                    </div>
+                    <div className="w-1 h-12 bg-gradient-to-b from-accent to-transparent mt-2"></div>
+                  </div>
+                  <div className="pb-4">
+                    <p className="font-semibold text-gray-900">Last Modified</p>
+                    <p className="text-sm text-gray-600">
+                      {article.lastModified ? new Date(article.lastModified).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'N/A'}
+                    </p>
+                  </div>
+                </motion.div>
+
+                {/* Published */}
+                <motion.div 
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.8 }}
+                  className="flex gap-4"
+                >
+                  <div className="flex flex-col items-center">
+                    <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center text-accent font-bold shadow-lg">
+                      <BiCheck className="w-6 h-6" />
+                    </div>
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-900">Published</p>
+                    <p className="text-sm text-gray-600">
+                      {publication.datePublished ? new Date(publication.datePublished).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'N/A'}
+                    </p>
+                  </div>
+                </motion.div>
+              </div>
+            </motion.div>
 
             {/* Comments for Editors */}
             {article.commentsForTheEditors && (
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
-                <h3 className="text-lg font-semibold text-blue-900 mb-3">Comments for Editors</h3>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.85 }}
+                className="bg-gradient-to-br from-blue-50 to-blue-100/50 border border-blue-200 rounded-2xl p-8"
+              >
+                <h3 className="text-lg font-semibold text-blue-900 mb-4 flex items-center gap-2">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                  </svg>
+                  Author Comments
+                </h3>
                 <div 
-                  className="text-blue-900 prose max-w-none text-sm"
+                  className="text-blue-900 prose-sm max-w-none"
                   dangerouslySetInnerHTML={{ __html: article.commentsForTheEditors }}
                 />
-              </div>
+              </motion.div>
             )}
-
-            {/* Galleys / Document Downloads */}
-            {publication.galleys && publication.galleys.length > 0 && (
-              <div className="mb-8">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">Available Versions</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {publication.galleys.map((galley) => {
-                    const fileName = galley.file?.name 
-                      ? (typeof galley.file.name === 'string' 
-                        ? galley.file.name 
-                        : galley.file.name['en'] || Object.values(galley.file.name)[0])
-                      : `${galley.label} File`;
-                    
-                    const fileUrl = galley.file?.url || galley.urlPublished;
-                    const genreName = galley.file?.genreName
-                      ? (typeof galley.file.genreName === 'string'
-                        ? galley.file.genreName
-                        : galley.file.genreName['en'] || Object.values(galley.file.genreName)[0])
-                      : 'Article';
-
-                    return (
-                      <div 
-                        key={galley.id} 
-                        className="bg-white border-2 border-gray-200 rounded-lg p-6 hover:border-accent hover:shadow-lg transition-all"
-                      >
-                        {/* File Type Icon */}
-                        <div className="flex items-start justify-between mb-4">
-                          <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 rounded-lg bg-accent/10 flex items-center justify-center">
-                              {galley.file?.mimetype?.includes('pdf') && (
-                                <svg className="w-6 h-6 text-accent" fill="currentColor" viewBox="0 0 20 20">
-                                  <path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm0 2h12v10H4V5z" />
-                                </svg>
-                              )}
-                              {galley.file?.mimetype?.includes('word') && (
-                                <svg className="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                                  <path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4z" />
-                                </svg>
-                              )}
-                              {!galley.file?.mimetype?.includes('pdf') && !galley.file?.mimetype?.includes('word') && (
-                                <svg className="w-6 h-6 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
-                                  <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
-                                </svg>
-                              )}
-                            </div>
-                            <div>
-                              <p className="text-sm font-medium text-gray-600">{genreName}</p>
-                              <p className="text-xs text-gray-500">v{publication.version}</p>
-                            </div>
-                          </div>
-                          {galley.isApproved && (
-                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                              ✓ Approved
-                            </span>
-                          )}
-                        </div>
-
-                        {/* File Name */}
-                        <p className="text-sm font-semibold text-gray-900 mb-4 line-clamp-2">
-                          {fileName}
-                        </p>
-
-                        {/* File Info */}
-                        <div className="mb-4 flex items-center gap-4 text-xs text-gray-600">
-                          <span>{galley.file?.mimetype?.split('/')[1]?.toUpperCase() || 'FILE'}</span>
-                          {galley.file?.documentType && (
-                            <span className="capitalize">{galley.file.documentType}</span>
-                          )}
-                        </div>
-
-                        {/* Action Buttons */}
-                        <div className="flex gap-2">
-                          {fileUrl && (
-                            <a
-                              href={`/api/articles/${article.id.toString()}/download/${galley.id.toString()}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="flex-1 flex items-center justify-center gap-2 bg-accent text-white px-4 py-2 rounded-lg hover:bg-opacity-90 transition-colors font-medium text-sm"
-                            >
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                              </svg>
-                              Download
-                            </a>
-                          )}
-                          {galley.urlPublished && (
-                            <a
-                              href={`/api/articles/${article.id.toString()}/view/${galley.id.toString()}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="flex-1 flex items-center justify-center gap-2 border border-accent text-accent px-4 py-2 rounded-lg hover:bg-accent/5 transition-colors font-medium text-sm"
-                            >
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                              </svg>
-                              View
-                            </a>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
- 
-            {/* View Full Article Button */}
-            {/* {publication.urlPublished && (
-              <div>
-                <Link
-                 href={`/article/view/${article.id.toString()}/${publication?.galleys[0].id.toString()}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 bg-accent text-white px-6 py-3 rounded-lg font-medium hover:bg-opacity-90 transition-colors"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                  </svg>
-                  View Full Article on Journal
-                </Link>
-              </div>
-            )} */}
-          </div>
+          </motion.div>
 
           {/* Sidebar */}
-          <div className="lg:col-span-1">
-            {/* Participants */}
-            {article.participants && article.participants.length > 0 && (
-              <div className="bg-white rounded-lg border p-6 mb-6">
-                <h3 className="font-bold text-gray-900 mb-4">Participants</h3>
-                <div className="space-y-3">
-                  {article.participants.map((participant) => (
-                    <div key={participant.id} className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-gray-900">{participant.fullName}</span>
-                      {participant.canLoginAs && (
-                        <span className="inline-block px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs">
-                          Author
-                        </span>
-                      )}
-                    </div>
-                  ))}
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.3 }}
+            className="lg:col-span-1 space-y-6"
+          >
+            {/* Article Metadata Card */}
+            <motion.div 
+              whileHover={{ y: -4 }}
+              className="bg-white rounded-2xl border border-gray-200 p-6 hover:border-accent/50 transition-all hover:shadow-lg"
+            >
+              <h3 className="font-bold text-gray-900 mb-6 flex items-center gap-2">
+                <div className="p-2 bg-accent/10 rounded-lg">
+                  <svg className="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
                 </div>
-              </div>
-            )}
-
-            {/* Quick Actions */}
-            <div className="bg-white rounded-lg border p-6 mb-6">
-              <h3 className="font-bold text-gray-900 mb-4">Quick Actions</h3>
-              <div className="space-y-2">
-                {article.urlPublished && (
-                  <a
-                    href={article.urlPublished}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block w-full text-center bg-gray-100 text-gray-900 px-4 py-2 rounded hover:bg-gray-200 transition-colors text-sm font-medium"
+                Article Info
+              </h3>
+              <div className="space-y-4 text-sm">
+                <div className="pb-4 border-b border-gray-200">
+                  <p className="text-gray-600 font-medium mb-1">Article ID</p>
+                  <p className="font-mono font-bold text-accent text-lg">#{article.id}</p>
+                </div>
+                <div className="pb-4 border-b border-gray-200">
+                  <p className="text-gray-600 font-medium mb-1">Status</p>
+                  <motion.span 
+                    whileHover={{ scale: 1.05 }}
+                    className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(article.status)}`}
                   >
-                    View Article
-                  </a>
-                )}
-                {article.urlEditorialWorkflow && (
-                  <a
-                    href={article.urlEditorialWorkflow}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block w-full text-center bg-accent/10 text-accent px-4 py-2 rounded hover:bg-accent/20 transition-colors text-sm font-medium"
-                  >
-                    Editorial Dashboard
-                  </a>
-                )}
+                    {article.status === 3 && <> <BiCheck className="w-4 h-4" /> P   ublished</>}
+                  </motion.span>
+                </div>
+                <div>
+                  <p className="text-gray-600 font-medium mb-1">Publication Version</p>
+                  <p className="font-bold text-gray-900">v{publication.version}</p>
+                </div>
               </div>
-            </div>
+            </motion.div>
 
-            {/* Article Info */}
-            <div className="bg-white rounded-lg border p-6">
-              <h3 className="font-bold text-gray-900 mb-4">Article Info</h3>
-              <div className="space-y-3 text-sm">
-                <div>
-                  <p className="text-gray-600">ID</p>
-                  <p className="font-mono font-semibold text-gray-900">#{article.id}</p>
+            
+            {/* Publication Stats */}
+            <motion.div 
+              whileHover={{ y: -4 }}
+              className="bg-gradient-to-br from-accent/5 to-primary/5 rounded-2xl border border-accent/20 p-6 hover:border-accent/50 transition-all"
+            >
+              <h3 className="font-bold text-gray-900 mb-4">Publication Stats</h3>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">Section</span>
+                  <span className="font-semibold text-gray-900">{publication.sectionId ? `Section ${publication.sectionId}` : 'N/A'}</span>
                 </div>
-                <div>
-                  <p className="text-gray-600">Status</p>
-                  <p className="font-semibold text-gray-900">{article.statusLabel}</p>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">Locale</span>
+                  <span className="font-semibold text-gray-900 uppercase">{publication.locale}</span>
                 </div>
-                <div>
-                  <p className="text-gray-600">Publication Version</p>
-                  <p className="font-semibold text-gray-900">v{publication.version}</p>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">Type</span>
+                  <span className="font-semibold text-accent">Article</span>
                 </div>
               </div>
-            </div>
-          </div>
+            </motion.div>
+
+            {/* CTA */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.9 }}
+              whileHover={{ scale: 1.02 }}
+              className="bg-gradient-to-br from-primary to-accent rounded-2xl p-6 text-white shadow-lg hover:shadow-xl transition-all"
+            >
+              <p className="text-sm font-semibold opacity-90 mb-3">Interested in publishing?</p>
+              <Link 
+                href="/submit"
+                className="inline-flex items-center gap-2 font-bold hover:gap-3 transition-all"
+              >
+                Submit Your Research
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </Link>
+            </motion.div>
+          </motion.div>
         </div>
       </div>
     </div>

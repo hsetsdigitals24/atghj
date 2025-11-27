@@ -286,11 +286,11 @@ const sections: GuidelineSection[] = [
     content: (
       <>
         <p className="mb-4">
-          ATGHJ is an open-access journal with the following publication fees:
+           The journal follows a Gold Open Access model (articles are freely available). Authors retain copyright under a CC BY license (Creative Commons Attribution). Article Processing Charges (APCs): TBD (Waivers available for LMIC researchers). 
         </p>
         <ul className="list-disc pl-6 space-y-2">
-          <li>Article Processing Charge (APC): N0 (Naira)</li>
-          <li>Waiver program available for authors from low-income countries</li>
+          <li>Article Processing Charge (APC): #100, 000 ($150) </li>
+          {/* <li>Waiver program available for authors from low-income countries</li> */}
           <li>No submission fees</li>
           <li>No page charges</li>
         </ul>

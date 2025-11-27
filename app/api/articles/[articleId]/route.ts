@@ -25,7 +25,8 @@ export async function GET(
 
   try {
     // Get submission details
-    const apiUrl = new URL(`${OJS_BASE_URL}/submissions/${articleId}`);
+    const apiUrl = new URL(`${OJS_BASE_URL}/submissions/${articleId}/publications`); 
+    apiUrl.searchParams.append('include', 'publications.galleys');
     apiUrl.searchParams.append('apiToken', OJS_API_KEY);
 
     // console.log('📤 Fetching article from:', apiUrl.toString());
@@ -49,6 +50,8 @@ export async function GET(
     }
 
     const article = await response.json();
+    // console.log({"article fetched from OJS in route": article});
+
     return NextResponse.json(article);
   } catch (error) {
     console.error('❌ Error fetching article from OJS:', error);
