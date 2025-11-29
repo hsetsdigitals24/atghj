@@ -96,7 +96,7 @@ export default function Footer() {
                     d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
                   />
                 </svg>
-                Afebabalola University, Ekiti State, Nigeria.
+                Afe Babalola University, Ekiti State, Nigeria.
               </p>
 
               <a
@@ -177,7 +177,7 @@ export default function Footer() {
 
             {/* Developed By Section */}
             <div className="pt-4 border-t border-gray-700">
-              <p className="text-sm text-gray-400">
+              <p className="text-sm text-gray-400 my-4">
                 Developed by <br/>
                 <a
                   href="https://h-sets.com"
@@ -185,7 +185,7 @@ export default function Footer() {
                   rel="noopener noreferrer"
                   className="text-white hover:text-opacity-80 transition-colors font-semibold"
                 >
-                  H-Sets Digital & IT Solutions
+                  H-SETS Digital & IT Solutions
                 </a>
               </p>
             </div>
