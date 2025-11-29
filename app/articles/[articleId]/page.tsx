@@ -642,7 +642,7 @@ export default function ArticlePage() {
             >
               <p className="text-sm font-semibold opacity-90 mb-3">Interested in publishing?</p>
               <Link 
-                href="/submit"
+                href={process.env.SUBMISSION_URL || 'https://dashboard.atghj.africa/index.php/journal/submission'}
                 className="inline-flex items-center gap-2 font-bold hover:gap-3 transition-all"
               >
                 Submit Your Research
