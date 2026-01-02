@@ -42,12 +42,13 @@ export default function Header() {
 
   // Handle scroll events
   useEffect(() => {
+    console.log(isScrolled);
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [isScrolled]);
 
   const mainNav = [
     { name: 'Current Issue', href: '/' },
@@ -97,13 +98,13 @@ export default function Header() {
                 <Image
                   src={logo}
                   alt="ATGHJ Logo"
-                  width={120}
-                  height={50}
+                  width={110}
+                  height={35}
                   className="w-75 h-auto"
                   priority
                 />
               </Link>
-              <span className="text-xs font-bold italic">Supports open acces</span>
+              <span className="text-xs font-bold italic">Supports open acces.</span>
             </motion.div>
 
             {/* Desktop Navigation */}
@@ -118,9 +119,8 @@ export default function Header() {
                   >
                     <Link
                       href={item.href}
-                      className="text-gray-700 hover:text-primary dark:text-gray-700 
-                               dark:hover:text-primary transition-colors duration-200 
-                               text-sm font-medium"
+                      className="text-gray-700 hover:text-primary transition-colors duration-200 
+                               md:text-md font-medium"
                     >
                       {item.name}
                     </Link>
@@ -132,9 +132,8 @@ export default function Header() {
                   <motion.button
                     whileHover={{ y: -2 }}
                     whileTap={{ y: 0 }}
-                    className="text-gray-700 hover:text-primary dark:text-gray-700 
-                             dark:hover:text-primary transition-colors duration-200 
-                             text-sm font-medium flex items-center"
+                    className="text-gray-700 hover:text-primary  transition-colors duration-200 
+                             md:text-md font-medium flex items-center"
                     onClick={() => setIsResourcesOpen(!isResourcesOpen)}
                   >
                     Resources
@@ -171,7 +170,7 @@ export default function Header() {
                             <Link
                               key={item.name}
                               href={item.href}
-                              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 
+                              className="block px-4 py-2 md:text-md text-gray-700 hover:bg-gray-100 
                                        dark:text-gray-700 dark:hover:bg-gray-700  dark:hover:text-white"
                               onClick={() => setIsResourcesOpen(false)}
                             >
@@ -193,7 +192,7 @@ export default function Header() {
                 <Link
                   href={submission_url || "https://dashboard.atghj.africa/index.php/journal/submission"} 
                   className="inline-flex items-center px-6 py-2.5 border border-transparent 
-                           text-sm font-semibold rounded-full text-white bg-accent
+                           md:text-md font-semibold rounded-full text-white bg-accent
                            hover:bg-primary transition-colors duration-200 
                            shadow-sm hover:shadow-md focus:outline-none focus:ring-2 
                            focus:ring-offset-2 focus:ring-primary-500"
@@ -232,8 +231,7 @@ export default function Header() {
                     href={item.href}
                     className="block px-3 py-2 text-base font-medium text-gray-700 
                              hover:bg-gray-50 hover:text-primary rounded-md 
-                             dark:text-gray-800 dark:hover:bg-gray-800 
-                             dark:hover:text-white transition-colors duration-200"
+                            transition-colors duration-200"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     {item.name}
