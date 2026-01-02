@@ -76,23 +76,7 @@ export default function Header() {
 
   return (
     <>
-      {/* Announcement Bar */}
-      <motion.div
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        className="bg-primary text-gray-800"
-      >
-        <div className="container mx-auto px-4">
-          <div className="flex justify-between items-center h-10 text-sm">
-            <p className="hidden sm:block font-medium">
-              Bridging Research, Innovation, and Health Equity in Africa!
-            </p>
-            <div className="flex items-center space-x-4">
-              <span>{announcementText}</span>
-            </div>
-          </div>
-        </div>
-      </motion.div>
+     
 
       {/* Main Header */}
       <motion.header
@@ -105,7 +89,7 @@ export default function Header() {
           <div className="flex justify-between items-center h-20">
             {/* Logo Section */}
             <motion.div
-              className="flex items-center space-x-4"
+              className="flex items-center flex-col space-x-4 pb-2"
               whileHover={{ scale: 1.02 }}
               transition={{ type: 'spring', stiffness: 300 }}
             >
@@ -113,12 +97,13 @@ export default function Header() {
                 <Image
                   src={logo}
                   alt="ATGHJ Logo"
-                  width={160}
+                  width={120}
                   height={50}
                   className="w-75 h-auto"
                   priority
                 />
               </Link>
+              <span className="text-xs font-bold italic">Supports open acces</span>
             </motion.div>
 
             {/* Desktop Navigation */}
@@ -270,7 +255,24 @@ export default function Header() {
             </motion.div>
           )}
         </AnimatePresence>
-      </motion.header>
+      </motion.header> 
+      {/* Announcement Bar */}
+      <motion.div
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        className="bg-primary text-gray-800"
+      >
+        <div className="container mx-auto px-4">
+          <div className="flex justify-between items-center h-10 text-sm">
+            <p className="hidden sm:block font-medium">
+              Bridging Research, Innovation, and Health Equity in Africa!
+            </p>
+            <div className="flex items-center space-x-4">
+              <span>{announcementText}</span>
+            </div>
+          </div>
+        </div>
+      </motion.div>
     </>
   );
 }

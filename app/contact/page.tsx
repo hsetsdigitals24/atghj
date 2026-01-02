@@ -110,7 +110,7 @@ export default function ContactPage() {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid md:grid-cols-2 gap-12">
+        <div className="grid md:grid-cols-1">
           {/* Contact Information */}
           <div>
             <h2 className="text-2xl font-bold text-gray-900 mb-6">
@@ -174,7 +174,7 @@ export default function ContactPage() {
           </div>
 
           {/* Contact Form */}
-          <div>
+          {/* <div>
             <h2 className="text-2xl font-bold text-gray-900 mb-6">
               Send Us a Message
             </h2>
@@ -295,7 +295,7 @@ export default function ContactPage() {
                 {isSubmitting ? "Sending..." : "Send Message"}
               </button>
             </form>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>
