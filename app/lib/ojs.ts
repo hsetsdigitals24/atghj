@@ -48,15 +48,21 @@ export async function ojsFetch(
   }
 
   const url = buildOjsUrl(path, options.params);
-
-  return fetch(url, {
+  const init: RequestInit = {
     method: 'GET',
     headers: {
       Accept: 'application/json'
     },
     signal: options.signal,
     next: { revalidate: options.revalidate ?? DEFAULT_REVALIDATE },
-  });
+  };
+
+  try {
+    return await fetch(url, init);
+  } catch (error) {
+    if (options.signal?.aborted) throw error;
+    return fetch(url, init);
+  }
 }
 
 export async function ojsFetchJson<T>(
