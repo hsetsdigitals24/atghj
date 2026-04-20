@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { isOjsConfigured, ojsFetch } from '@/app/lib/ojs';
 
 export interface Announcement {
   id: number;
@@ -17,7 +18,6 @@ interface AnnouncementsResponse {
   itemsMax: number;
 }
 
-// Mock data for development/fallback
 const MOCK_ANNOUNCEMENTS: Announcement[] = [
   {
     id: 1,
@@ -77,32 +77,20 @@ export async function GET(request: NextRequest) {
   const offset = parseInt(searchParams.get('offset') || '0');
   const useMock = searchParams.get('mock') === 'true';
 
-  const OJS_BASE_URL = process.env.NEXT_PUBLIC_OJS_API_URL;
-  const OJS_API_KEY = process.env.NEXT_PUBLIC_OJS_API_KEY;
-
   try {
     let announcements: Announcement[] = [];
 
-    // Use mock data if explicitly requested or if OJS is not configured
-    if (useMock || !OJS_BASE_URL || !OJS_API_KEY) {
+    if (useMock || !isOjsConfigured()) {
       announcements = [...MOCK_ANNOUNCEMENTS];
-      console.log('📢 Using mock announcements');
     } else {
       try {
-        // Fetch announcements from OJS
-        const announcementsUrl = new URL(`${OJS_BASE_URL}/announcements`);
-        announcementsUrl.searchParams.append('count', count.toString());
-        announcementsUrl.searchParams.append('offset', offset.toString());
-        announcementsUrl.searchParams.append('orderBy', 'datePosted');
-        announcementsUrl.searchParams.append('orderDirection', 'DESC');
-        announcementsUrl.searchParams.append('apiToken', OJS_API_KEY);
-
-        const response = await fetch(announcementsUrl.toString(), {
-          method: 'GET',
-          headers: {
-            'Accept': 'application/json',
+        const response = await ojsFetch('/announcements', {
+          params: {
+            count: count.toString(),
+            offset: offset.toString(),
+            orderBy: 'datePosted',
+            orderDirection: 'DESC',
           },
-          next: { revalidate: 3600 } // Cache for 1 hour
         });
 
         if (!response.ok) {
@@ -112,9 +100,6 @@ export async function GET(request: NextRequest) {
         const data = await response.json();
         const items = data.items || [];
 
-        console.log(`data from OJS: ${JSON.stringify(data)}`);
-
-        // Transform OJS announcements to our format
         announcements = items.map((item: Record<string, unknown>) => ({
           id: item.id as number,
           title: item.title as string,
@@ -124,15 +109,12 @@ export async function GET(request: NextRequest) {
           datePublished: (item.datePosted as string) || new Date().toISOString(),
           author: (item.author as string) || 'Editorial Team',
         }));
-
-        console.log(`✅ Fetched ${announcements.length} announcements from OJS`);
       } catch (ojsError) {
-        console.warn('⚠️ Failed to fetch from OJS, falling back to mock data:', ojsError);
+        console.warn('Failed to fetch from OJS, falling back to mock data:', ojsError);
         announcements = [...MOCK_ANNOUNCEMENTS];
       }
     }
 
-    // Apply filters if needed
     if (type && type !== 'all') {
       announcements = announcements.filter((a) => a.type === type);
     }
@@ -141,28 +123,23 @@ export async function GET(request: NextRequest) {
       announcements = announcements.filter((a) => a.priority === priority);
     }
 
-    // Apply pagination
     const paginatedAnnouncements = announcements.slice(offset, offset + count);
 
     const response_data: AnnouncementsResponse = {
       items: paginatedAnnouncements,
-      itemsMax: announcements.length
+      itemsMax: announcements.length,
     };
 
     return NextResponse.json(response_data);
   } catch (error) {
-    console.error('❌ Error processing announcements:', error);
-    // Return mock data even on error to prevent complete failure
+    console.error('Error processing announcements:', error);
     return NextResponse.json({
       items: MOCK_ANNOUNCEMENTS.slice(0, 3),
-      itemsMax: MOCK_ANNOUNCEMENTS.length
+      itemsMax: MOCK_ANNOUNCEMENTS.length,
     });
   }
 }
 
-/**
- * Determine announcement type based on title and content keywords
- */
 function determineType(title: string, content: string): 'news' | 'update' | 'alert' | 'event' | 'deadline' {
   const text = `${title} ${content}`.toLowerCase();
 
@@ -179,12 +156,9 @@ function determineType(title: string, content: string): 'news' | 'update' | 'ale
     return 'update';
   }
 
-  return 'news'; // Default
+  return 'news';
 }
 
-/**
- * Determine announcement priority based on keywords
- */
 function determinePriority(title: string, content: string): 'low' | 'medium' | 'high' {
   const text = `${title} ${content}`.toLowerCase();
 

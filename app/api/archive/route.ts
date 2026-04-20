@@ -1,17 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { isOjsConfigured, ojsConfigErrorResponse, ojsFetch } from '@/app/lib/ojs';
 
 export async function GET(request: NextRequest) {
-  const OJS_BASE_URL = process.env.NEXT_PUBLIC_OJS_API_URL;
-  const OJS_API_KEY = process.env.NEXT_PUBLIC_OJS_API_KEY;
-  
-  if (!OJS_BASE_URL || !OJS_API_KEY) {
-    return NextResponse.json(
-      { error: 'OJS configuration missing' },
-      { status: 500 }
-    );
+  if (!isOjsConfigured()) {
+    return ojsConfigErrorResponse();
   }
 
-  // Get query parameters
   const searchParams = request.nextUrl.searchParams;
   const count = searchParams.get('count') || '100';
   const offset = searchParams.get('offset') || '0';
@@ -19,28 +13,16 @@ export async function GET(request: NextRequest) {
   const volume = searchParams.get('volume');
 
   try {
-    const apiUrl = new URL(`${OJS_BASE_URL}/issues`);
-    apiUrl.searchParams.append('isPublished', '1');
-    apiUrl.searchParams.append('orderBy', 'datePublished');
-    apiUrl.searchParams.append('orderDirection', 'DESC');
-    apiUrl.searchParams.append('count', count);
-    apiUrl.searchParams.append('offset', offset);
-    apiUrl.searchParams.append('apiToken', OJS_API_KEY);
-    
-    // Add filters if provided
-    if (year) {
-      apiUrl.searchParams.append('years', year);
-    }
-    if (volume) {
-      apiUrl.searchParams.append('volumes', volume);
-    }
-
-    const response = await fetch(apiUrl.toString(), {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json',
+    const response = await ojsFetch('/issues', {
+      params: {
+        isPublished: 'true',
+        orderBy: 'datePublished',
+        orderDirection: 'DESC',
+        count,
+        offset,
+        ...(year ? { years: year } : {}),
+        ...(volume ? { volumes: volume } : {}),
       },
-      next: { revalidate: 3600 } // Cache for 1 hour
     });
 
     if (!response.ok) {

@@ -1,31 +1,38 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  compress: true,
+  poweredByHeader: false,
+  experimental: {
+    optimizePackageImports: [
+      'framer-motion',
+      'lucide-react',
+      'react-icons',
+      'date-fns',
+    ],
+  },
   images: {
     remotePatterns: [
       {
         protocol: 'http',
-        hostname: 'dashboard.atghj.africa',
+        hostname: 'atghj.h-sets.com',
         port: '',
         pathname: '/public/**',
       },
-      // If you also want to support HTTPS:
       {
         protocol: 'https',
-        hostname: 'dashboard.atghj.africa',
+        hostname: 'atghj.h-sets.com',
         port: '',
         pathname: '/public/**',
       },
-      // Configuration for Pixabay CDN
       {
         protocol: 'https',
         hostname: 'cdn.pixabay.com',
         port: '',
         pathname: '/photo/**',
       },
-    ], 
-  }
+    ],
+  },
 };
 
 export default nextConfig;

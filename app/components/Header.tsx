@@ -21,8 +21,8 @@ export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isResourcesOpen, setIsResourcesOpen] = useState(false);
-  const [currentIssue, setCurrentIssue] = useState<CurrentIssue | null>(null);
-  const submission_url = process.env.NEXT_PUBLIC_SUBMISSION_URL;
+  const [currentIssue, setCurrentIssue] = useState<CurrentIssue | null>(null); 
+  const submission_url = `${process.env.NEXT_PUBLIC_SUBMISSION_URL}` || "";
 
   // Fetch current issue
   useEffect(() => {
@@ -42,19 +42,18 @@ export default function Header() {
 
   // Handle scroll events
   useEffect(() => {
-    console.log(isScrolled);
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
     };
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [isScrolled]);
+  }, []);
 
   const mainNav = [
     { name: 'Current Issue', href: '/' },
     { name: 'Archive', href: '/archive' },
     {name: 'Announcements', href: '/announcements' },
-    { name: 'Dashboard', href: submission_url || "https://dashboard.atghj.africa/index.php/journal/submission" },
+    { name: 'Dashboard', href: submission_url},
     { name: 'Author Guidelines', href: '/guidelines' },
   ];
 
@@ -190,7 +189,7 @@ export default function Header() {
                 whileTap={{ scale: 0.95 }}
               >
                 <Link
-                  href={submission_url || "https://dashboard.atghj.africa/index.php/journal/submission"} 
+                  href={`${process.env.NEXT_PUBLIC_SUBMISSION_URL}`} 
                   className="inline-flex items-center px-6 py-2.5 border border-transparent 
                            md:text-md font-semibold rounded-full text-white bg-accent
                            hover:bg-primary transition-colors duration-200 
@@ -239,7 +238,7 @@ export default function Header() {
                 ))}
                 <div className="px-3 py-3">
                   <Link
-                    href={submission_url || "https://dashboard.atghj.africa/index.php/journal/submission"}
+                    href={`${process.env.NEXT_PUBLIC_SUBMISSION_URL}`}
                     className="w-full inline-flex justify-center items-center px-4 py-2.5 
                              border border-transparent text-base font-medium rounded-md 
                              text-white bg-primary hover:bg-primary 

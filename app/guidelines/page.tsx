@@ -8,7 +8,7 @@ interface GuidelineSection {
   content: string | React.ReactNode;
 }
 
-const SUBMISSION_URL = process.env.SUBMISSION_URL;
+const SUBMISSION_URL = process.env.NEXT_PUBLIC_SUBMISSION_URL;
 
 export default function GuidelinesPage() {
   return (
@@ -64,7 +64,7 @@ export default function GuidelinesPage() {
                 <h2 className="text-xl font-semibold text-gray-900 mb-4">Quick Links</h2>
                 <div className="grid gap-4 md:grid-cols-2">
                   <Link
-                    href={SUBMISSION_URL || "https://dashboard.atghj.africa/index.php/journal/submission"}
+                    href={SUBMISSION_URL || "https://atghj.h-sets.com/ojs/index.php/journal/submission"}
                     className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-sm font-medium rounded-lg shadow-md text-gray-800 hover:bg-accent hover:text-white bg-primary transition-all duration-200"
                   >
                     <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

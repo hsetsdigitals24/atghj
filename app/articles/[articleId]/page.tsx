@@ -112,7 +112,6 @@ export default function ArticlePage() {
         }
 
         const data = await response.json();
-        console.log('Article Data:', data); 
         setArticle(data.items[0]);
       } catch (err) { 
         setError(err instanceof Error ? err.message : 'An error occurred');
@@ -123,8 +122,6 @@ export default function ArticlePage() {
 
     fetchArticle();
   }, [articleId]);
-
-  // console.log('Article Data:', article);
 
   const getLocalizedValue = (value: string | { [locale: string]: string } | undefined) => {
     if (!value) return '';
@@ -389,7 +386,7 @@ export default function ArticlePage() {
                         <motion.a
                           whileHover={{ scale: 1.02, y: -2 }}
                           whileTap={{ scale: 0.98 }}
-                          href={`https://dashboard.atghj.africa/index.php/journal/article/view/${article.id}/${galley.id}`}
+                          href={`https://atghj.h-sets.com/ojs/index.php/journal/article/view/${article.id}/${galley.id}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="flex items-center justify-center gap-3 w-full px-6 py-4 bg-accent text-white font-semibold rounded-xl hover:shadow-lg transition-all group/btn"
@@ -405,7 +402,7 @@ export default function ArticlePage() {
                         <motion.a
                           whileHover={{ scale: 1.02, y: -2 }}
                           whileTap={{ scale: 0.98 }}
-                          href={`https://dashboard.atghj.africa/index.php/journal/article/download/${article.id}/${galley.id}`}
+                          href={`https://atghj.h-sets.com/ojs/index.php/journal/article/download/${article.id}/${galley.id}`}
                           download
                           className="flex items-center justify-center gap-3 w-full px-6 py-4 bg-gray-100 hover:bg-gray-200 text-gray-900 font-semibold rounded-xl transition-all group/btn"
                         >
@@ -642,7 +639,7 @@ export default function ArticlePage() {
             >
               <p className="text-sm font-semibold opacity-90 mb-3">Interested in publishing?</p>
               <Link 
-                href={process.env.SUBMISSION_URL || 'https://dashboard.atghj.africa/index.php/journal/submission'}
+                href={process.env.NEXT_PUBLIC_SUBMISSION_URL || 'https://atghj.h-sets.com/ojs/index.php/journal/submission'}
                 className="inline-flex items-center gap-2 font-bold hover:gap-3 transition-all"
               >
                 Submit Your Research

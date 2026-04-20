@@ -60,11 +60,6 @@ export default function IssueArticlesPage() {
     fetchArticles();
   }, [issueId]);
 
-
-console.log({"article": articles[1]?.publications[0]  });
-
-
-
   const getLocalizedValue = (value: string | { [locale: string]: string }) => {
     if (typeof value === 'string') return value;
     return value['en'] || value['en_US'] || Object.values(value)[0] || '';
@@ -100,7 +95,6 @@ console.log({"article": articles[1]?.publications[0]  });
             );
             
             if (!publication) return null;
-            console.log({"publication_in_page": publication});
             return (
               <article key={submission.id} className="border p-6 rounded-lg">
                 <h2 className="text-xl font-semibold mb-2">

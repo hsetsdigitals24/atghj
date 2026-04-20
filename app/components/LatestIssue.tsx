@@ -24,8 +24,7 @@ export default function LatestIssue() {
     const [issue, setIssue] = useState<IssueProp | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    
-    console.log({"issue in LatestIssue component": issue});
+
   useEffect(() => {
     async function fetchCurrentIssue() {
       try {

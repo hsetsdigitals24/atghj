@@ -2,7 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import aboutHero from '../../public/images/hero.jpg';
 
-const SUBMISSION_URL = process.env.SUBMISSION_URL || "https://dashboard.atghj.africa/index.php/journal/submission";
+const SUBMISSION_URL = process.env.NEXT_PUBLIC_SUBMISSION_URL || "https://atghj.h-sets.com/ojs/index.php/journal/submission";
 
 export default function AboutPage() {
   return (

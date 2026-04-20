@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-
-const OJS_API_BASE = process.env.NEXT_PUBLIC_OJS_API_URL;
-const OJS_API_TOKEN = process.env.NEXT_PUBLIC_OJS_API_KEY;
+import { isOjsConfigured, ojsConfigErrorResponse, ojsFetch } from '@/app/lib/ojs';
 
 interface Galley {
   id: number;
@@ -16,74 +14,57 @@ interface Publication {
   abstract?: string;
   doi?: string;
   galleys?: Galley[];
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 interface GalleyDataResponse {
   galleyId: number;
-  downloadUrl: string;
+  downloadPath: string;
   publication?: Publication;
 }
 
 async function getPublicationData(
-  submissionId: string | number,
-  publicationId: string | number
+  submissionId: string,
+  publicationId: string
 ): Promise<Publication | null> {
   try {
-    // Ensure correct query parameter separator for apiToken 
-    const url = `${OJS_API_BASE}/issues/${submissionId}/publications/${publicationId}?apiToken=${OJS_API_TOKEN}`;
-    const headers: HeadersInit = {
-      'Content-Type': 'application/json',
-    };
-
-    const response = await fetch(url, { headers });
+    const response = await ojsFetch(
+      `/submissions/${submissionId}/publications/${publicationId}`
+    );
 
     if (!response.ok) {
       console.error(`OJS API error: ${response.status} ${response.statusText}`);
       return null;
     }
 
-    const data: Publication = await response.json();
-    return data;
+    return (await response.json()) as Publication;
   } catch (error) {
     console.error('Error fetching publication data:', error);
     return null;
   }
 }
 
-async function getGalleyData(
-  submissionId: string | number,
-  publicationId: string | number
-): Promise<GalleyDataResponse | null> {
-  try {
-    const publication = await getPublicationData(submissionId, publicationId);
+function buildGalleyData(
+  submissionId: string,
+  publication: Publication
+): GalleyDataResponse {
+  const pdfGalley = publication.galleys?.find((g) => g.label === 'PDF');
 
-    if (!publication) {
-      return null;
-    }
-
-    console.log({"publication": publication});
-
-    const pdfGalley = publication.galleys?.find(g => g.label === 'PDF');
-
-    if (pdfGalley) {
-      const downloadUrl = `${OJS_API_BASE}/$$$call$$$/api/file/file-api/download-file?submissionFileId=${pdfGalley.submissionFileId}&submissionId=${submissionId}&stageId=3&apiToken=${OJS_API_TOKEN}`;
-      return {
-        galleyId: pdfGalley.id,
-        downloadUrl,
-        publication,
-      };
-    }
-
-    return { galleyId: 0, downloadUrl: '', publication } as GalleyDataResponse | null;
-  } catch (error) {
-    console.error('Error getting galley data:', error);
-    return null;
+  if (!pdfGalley) {
+    return { galleyId: 0, downloadPath: '', publication };
   }
+
+  const downloadPath = `/$$$call$$$/api/file/file-api/download-file?submissionFileId=${pdfGalley.submissionFileId}&submissionId=${submissionId}&stageId=3`;
+
+  return {
+    galleyId: pdfGalley.id,
+    downloadPath,
+    publication,
+  };
 }
 
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ submissionId: string; publicationsId: string }> }
 ) {
   try {
@@ -96,11 +77,8 @@ export async function GET(
       );
     }
 
-    if (!OJS_API_TOKEN || !OJS_API_BASE) {
-      return NextResponse.json(
-        { error: 'OJS API configuration not set' },
-        { status: 500 }
-      );
+    if (!isOjsConfigured()) {
+      return ojsConfigErrorResponse();
     }
 
     const publication = await getPublicationData(submissionId, publicationsId);
@@ -112,7 +90,7 @@ export async function GET(
       );
     }
 
-    const galley = await getGalleyData(submissionId, publicationsId);
+    const galley = buildGalleyData(submissionId, publication);
 
     return NextResponse.json({ publication, galley }, { status: 200 });
   } catch (error) {

@@ -114,7 +114,6 @@ export default function ArticlePreviewPage() {
           setPublication(latestPub || null);
         } else if (result.publication) {
           setPublication(result.publication);
-          console.log({"results": result})
         }
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Unknown error';
@@ -207,7 +206,7 @@ export default function ArticlePreviewPage() {
                 <div className="md:col-span-1">
                   <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-lg overflow-hidden shadow-xl hover:shadow-2xl transition-shadow duration-300 aspect-square">
                     <img
-                      src={`https://dashboard.atghj.africa/public/journals/1/submissions/${submissionsId}/${publicationsId}/${coverImageData.uploadName}`}
+                      src={`https://atghj.h-sets.com/ojs/public/journals/1/submissions/${submissionsId}/${publicationsId}/${coverImageData.uploadName}`}
                       alt={coverImageData.altText || 'Article cover'}
                       className="w-full h-full object-cover"
                       onError={(e) => {
