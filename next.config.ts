@@ -11,6 +11,21 @@ const nextConfig: NextConfig = {
       'date-fns',
     ],
   },
+  rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: 'http://localhost:3000/api/:path*',
+      }, {
+        source: '/dashboard/:path*',
+        destination: 'https://atghj.h-sets.com/ojs/index.php/:path*',
+      },
+      {
+        source: '/ojs-assets/:path*',
+        destination: 'https://atghj.h-sets.com/ojs-assets/:path*',
+      }
+    ];
+  },
   images: {
     remotePatterns: [
       {
