@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
           status: '3',
           orderBy: 'sequence',
           orderDirection: 'ASC',
-          count: '100',
+          count: '100',apiToken: process.env.OJS_API_KEY, // Ensure API token is included in params if required by OJS setup
         },
       }),
       ojsFetch(`/issues/${issueId}`),

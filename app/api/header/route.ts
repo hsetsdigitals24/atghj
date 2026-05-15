@@ -22,6 +22,7 @@ export async function GET() {
         orderBy: 'datePublished',
         orderDirection: 'DESC',
         count: '1',
+        apiToken: process.env.OJS_API_KEY, // Ensure API token is included in params if required by OJS setup
       },
     });
 
@@ -60,7 +61,17 @@ export async function GET() {
 
     return NextResponse.json(currentIssueData);
   } catch (error) {
-    console.error('Error fetching current issue:', error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    
+    if (errorMessage.includes('timeout')) {
+      console.error('OJS API timeout - server may be unreachable:', errorMessage);
+      return NextResponse.json(
+        { error: 'OJS server timeout - check connectivity' },
+        { status: 503 }
+      );
+    }
+    
+    console.error('Error fetching current issue:', errorMessage);
     return NextResponse.json(
       { error: 'Failed to fetch current issue' },
       { status: 500 }

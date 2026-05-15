@@ -1,6 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { isOjsConfigured, ojsConfigErrorResponse, ojsFetch } from '@/app/lib/ojs';
 
+interface SubmissionFile {
+  id: number;
+  fileId: string;
+  documentType: string;
+  fileType: string;
+  genreName?: string | { [locale: string]: string };
+  mimetype: string;
+  path: string;
+  url: string;
+  uploadedFileName: string;
+}
+
 interface Galley {
   id: number;
   label: string;
@@ -21,6 +33,7 @@ interface GalleyDataResponse {
   galleyId: number;
   downloadPath: string;
   publication?: Publication;
+  files?: SubmissionFile[];
 }
 
 async function getPublicationData(
@@ -44,22 +57,47 @@ async function getPublicationData(
   }
 }
 
+async function getSubmissionFiles(
+  submissionId: string
+): Promise<SubmissionFile[]> {
+  try {
+    const response = await ojsFetch(`/submissions/${submissionId}/files`);
+
+    if (!response.ok) {
+      console.error(`OJS API error fetching files: ${response.status}`);
+      return [];
+    }
+
+    const data = await response.json();
+    return (data.items || []) as SubmissionFile[];
+  } catch (error) {
+    console.error('Error fetching submission files:', error);
+    return [];
+  }
+}
+
 function buildGalleyData(
   submissionId: string,
-  publication: Publication
+  publication: Publication,
+  files: SubmissionFile[]
 ): GalleyDataResponse {
   const pdfGalley = publication.galleys?.find((g) => g.label === 'PDF');
 
   if (!pdfGalley) {
-    return { galleyId: 0, downloadPath: '', publication };
+    return { galleyId: 0, downloadPath: '', publication, files };
   }
 
-  const downloadPath = `/$$$call$$$/api/file/file-api/download-file?submissionFileId=${pdfGalley.submissionFileId}&submissionId=${submissionId}&stageId=3`;
+  // Try to find matching file from the files list
+  const matchingFile = files.find(f => f.id === pdfGalley.submissionFileId);
+  
+  // Use OJS file URL if available, otherwise fall back to constructed path
+  const downloadPath = matchingFile?.url || `/$$$call$$$/api/file/file-api/download-file?submissionFileId=${pdfGalley.submissionFileId}&submissionId=${submissionId}&stageId=3`;
 
   return {
     galleyId: pdfGalley.id,
     downloadPath,
     publication,
+    files,
   };
 }
 
@@ -81,7 +119,11 @@ export async function GET(
       return ojsConfigErrorResponse();
     }
 
-    const publication = await getPublicationData(submissionId, publicationsId);
+    // Fetch publication and files in parallel
+    const [publication, files] = await Promise.all([
+      getPublicationData(submissionId, publicationsId),
+      getSubmissionFiles(submissionId),
+    ]);
 
     if (!publication) {
       return NextResponse.json(
@@ -90,7 +132,7 @@ export async function GET(
       );
     }
 
-    const galley = buildGalleyData(submissionId, publication);
+    const galley = buildGalleyData(submissionId, publication, files);
 
     return NextResponse.json({ publication, galley }, { status: 200 });
   } catch (error) {

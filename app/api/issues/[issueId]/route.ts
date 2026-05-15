@@ -25,7 +25,8 @@ export async function GET(
         status: '3',
         orderBy: 'sequence',
         orderDirection: 'ASC',
-        count: '20',
+        count: '20', 
+        apiToken: process.env.OJS_API_KEY, // Ensure API token is included in params if required by OJS setup
       },
     });
 

@@ -18,11 +18,11 @@ const nextConfig: NextConfig = {
         destination: 'http://localhost:3000/api/:path*',
       }, {
         source: '/dashboard/:path*',
-        destination: 'https://atghj.h-sets.com/ojs/index.php/:path*',
+        destination: 'https://dash.atghj.africa/ojsdir/index.php/:path*',
       },
       {
         source: '/ojs-assets/:path*',
-        destination: 'https://atghj.h-sets.com/ojs-assets/:path*',
+        destination: 'https://dash.atghj.africa/ojs-assets/:path*',
       }
     ];
   },
@@ -30,13 +30,13 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'http',
-        hostname: 'atghj.h-sets.com',
+        hostname: 'dash.atghj.africa',
         port: '',
         pathname: '/public/**',
       },
       {
         protocol: 'https',
-        hostname: 'atghj.h-sets.com',
+        hostname: 'dash.atghj.africa',
         port: '',
         pathname: '/public/**',
       },

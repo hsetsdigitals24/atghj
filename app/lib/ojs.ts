@@ -9,6 +9,7 @@ export interface OjsFetchOptions {
   params?: Record<string, string | number | undefined>;
   revalidate?: number;
   signal?: AbortSignal;
+  timeout?: number; // milliseconds
 }
 
 export function isOjsConfigured(): boolean {
@@ -48,20 +49,35 @@ export async function ojsFetch(
   }
 
   const url = buildOjsUrl(path, options.params);
+  
+  // Create AbortController with timeout
+  const timeoutMs = options.timeout ?? 10000; // 10 seconds default
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+  
+  // Merge signals if user provided one
+  const signal = options.signal 
+    ? new AbortSignal() 
+    : controller.signal;
+
   const init: RequestInit = {
     method: 'GET',
     headers: {
       Accept: 'application/json'
     },
-    signal: options.signal,
+    signal,
     next: { revalidate: options.revalidate ?? DEFAULT_REVALIDATE },
   };
 
   try {
     return await fetch(url, init);
   } catch (error) {
-    if (options.signal?.aborted) throw error;
-    return fetch(url, init);
+    if (controller.signal.aborted) {
+      throw new Error(`OJS API request timeout after ${timeoutMs}ms to ${path}`);
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeoutId);
   }
 }
 

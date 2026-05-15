@@ -4,6 +4,18 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 
+interface SubmissionFile {
+  id: number;
+  fileId: string;
+  documentType: string;
+  fileType: string;
+  genreName?: string | { [locale: string]: string };
+  mimetype: string;
+  path: string;
+  url: string;
+  uploadedFileName: string;
+}
+
 interface Galley {
   id: number;
   label: string;
@@ -60,7 +72,11 @@ interface Submission {
 
 interface ApiResponse {
   publication?: Publication;
-  galley?: any;
+  galley?: {
+    galleyId: number;
+    downloadPath: string;
+    files?: SubmissionFile[];
+  };
   submission?: Submission;
 }
 
@@ -71,10 +87,10 @@ export default function ArticlePreviewPage() {
 
   const [submission, setSubmission] = useState<Submission | null>(null);
   const [publication, setPublication] = useState<Publication | null>(null);
+  const [files, setFiles] = useState<SubmissionFile[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [previewOpen, setPreviewOpen] = useState(false);
-  const [isDownloading, setIsDownloading] = useState(false);
 
   // Helper function to extract string value from object or string
   const getStringValue = (value: any): string => {
@@ -115,6 +131,11 @@ export default function ArticlePreviewPage() {
         } else if (result.publication) {
           setPublication(result.publication);
         }
+
+        // Set files from galley data
+        if (result.galley?.files) {
+          setFiles(result.galley.files);
+        }
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Unknown error';
         setError(`Error loading article: ${message}`);
@@ -128,12 +149,6 @@ export default function ArticlePreviewPage() {
       fetchData();
     }
   }, [submissionsId, publicationsId]);
-
-  const handleDownload = async () => {
-    if (!publication) return;
-    // This would require galley data - for now show message
-    alert('PDF download feature requires galley data to be available');
-  };
 
   if (loading) {
     return (
@@ -381,6 +396,39 @@ export default function ArticlePreviewPage() {
                           {galley.label === 'PDF' ? '📕' : '📄'}
                         </span>
                       </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Available Files Section */}
+          {files && files.length > 0 && (
+            <div className="animate-fade-in animation-delay-300">
+              <div className="bg-gradient-to-r from-amber-600/10 to-orange-600/10 border border-slate-700/50 rounded-lg p-8 backdrop-blur-sm">
+                <h2 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
+                  <span className="text-amber-400">📥</span> Download Files
+                </h2>
+                <div className="space-y-3">
+                  {files.map((file) => (
+                    <div
+                      key={file.id}
+                      className="bg-slate-800/50 border border-slate-700 rounded-lg p-4 hover:border-slate-600 transition-all duration-200 hover:bg-slate-800 flex items-center justify-between"
+                    >
+                      <div className="flex-1">
+                        <p className="text-white font-medium">{file.uploadedFileName}</p>
+                        <p className="text-sm text-slate-400 mt-1">
+                          {file.documentType} • {file.mimetype}
+                        </p>
+                      </div>
+                      <a
+                        href={file.url}
+                        download
+                        className="ml-4 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white font-semibold rounded transition-all duration-200 hover:shadow-lg active:scale-95 text-sm whitespace-nowrap"
+                      >
+                        ⬇ Download
+                      </a>
                     </div>
                   ))}
                 </div>

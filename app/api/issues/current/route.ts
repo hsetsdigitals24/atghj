@@ -22,6 +22,7 @@ export async function GET() {
         orderBy: 'datePublished',
         orderDirection: 'DESC',
         count: '1',
+        apiToken: process.env.OJS_API_KEY, // Ensure API token is included in params if required by OJS setup
       },
     });
 
